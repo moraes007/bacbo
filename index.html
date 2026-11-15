@@ -4,369 +4,476 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bac Bo Lab</title>
+<title>Bac Bo Lab — Dupla leitura</title>
 <style>
-:root {
- --bg:#0b1020;
- --panel:#131c31;
- --panel2:#1a2740;
- --text:#eef3ff;
- --muted:#9eacc7;
- --blue:#3988ff;
- --red:#ef5350;
- --gold:#e2b64d;
- --line:#293653;
+:root{
+--bg:#0b1020;--panel:#131c31;--panel2:#1a2740;
+--text:#eef3ff;--muted:#9eacc7;
+--blue:#3988ff;--red:#ef5350;--gold:#e2b64d;
+--line:#293653
 }
 *{box-sizing:border-box}
-body {
- margin:0;
- background:radial-gradient(ellipse at top,#172744,#0b1020 58%);
- color:var(--text);
- font:15px system-ui,sans-serif;
+body{
+margin:0;
+background:radial-gradient(ellipse at top,#172744,#0b1020 58%);
+color:var(--text);
+font:15px system-ui,sans-serif
 }
-main{max-width:1050px;margin:auto;padding:26px 16px 48px}
-.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+main{max-width:1100px;margin:auto;padding:24px 16px 48px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 h1{font-size:clamp(25px,4vw,36px);margin:0}
 .sub,.muted{color:var(--muted)}
-.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.card{background:linear-gradient(145deg,var(--panel),#111a2d);border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:0 12px 35px #0002}
-.metric{font-size:30px;font-weight:800;margin:4px 0}
 .small{font-size:12px;color:var(--muted)}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
+.card{
+background:linear-gradient(145deg,var(--panel),#111a2d);
+border:1px solid var(--line);border-radius:17px;
+padding:16px;margin-top:13px;box-shadow:0 12px 35px #0002
+}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.metric{font-size:28px;font-weight:800;margin:4px 0}
 .blue{color:var(--blue)}
 .red{color:var(--red)}
 .gold{color:var(--gold)}
-section{margin-top:14px}
-.section-title{font-size:17px;font-weight:750;margin:0 0 12px}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-button{cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:13px;background:var(--panel2);color:var(--text);font-weight:750;font-size:15px}
-button:hover{filter:brightness(1.15)}
-button:disabled{opacity:.4;cursor:not-allowed}
-.btn-p{border-color:#2869c9;background:#173a70}
-.btn-b{border-color:#a93636;background:#5a2428}
-.btn-t{border-color:#9a792d;background:#55451f}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
-.actions button{font-size:13px;padding:10px 13px}
-.notice{border-left:3px solid var(--gold);background:#2b2516;padding:13px 15px;border-radius:9px;color:#f3e5bd;line-height:1.5}
-.bar{height:9px;background:#26324b;border-radius:99px;overflow:hidden;margin-top:7px}
-.fill{height:100%;border-radius:99px}
-.history{display:flex;flex-wrap:wrap;gap:7px;min-height:40px}
-.dot{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;color:white}
-.dot.P{background:#2468cf}
-.dot.B{background:#c83c3c}
-.dot.T{background:#a78328}
+button{
+cursor:pointer;border:1px solid var(--line);
+border-radius:11px;padding:11px 13px;
+background:var(--panel2);color:var(--text);font-weight:700
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:#173a70;border-color:#2869c9}
+.danger{background:#51272b;border-color:#a93636}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.notice{
+border-left:3px solid var(--gold);
+background:#2b2516;padding:12px 14px;
+border-radius:9px;color:#f3e5bd;line-height:1.5
+}
+video{
+display:block;width:100%;max-height:510px;
+object-fit:contain;background:#050914;
+border:1px solid var(--line);border-radius:12px;margin-top:12px
+}
+#frameCanvas{
+display:none;width:100%;max-height:510px;
+object-fit:contain;background:#050914;
+border:1px solid var(--line);border-radius:12px;
+margin-top:12px;touch-action:none
+}
+.roi{
+padding:10px;border:1px solid var(--line);
+border-radius:11px;background:#0d1729;margin-top:8px
+}
+.status{margin-top:8px;font-size:13px;color:var(--muted)}
 table{width:100%;border-collapse:collapse}
 td,th{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line)}
 th{color:var(--muted);font-size:12px}
-input{background:#0c1425;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:10px;width:100%}
-.footer{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.5}
+.history{display:flex;flex-wrap:wrap;gap:6px}
+.dot{
+width:31px;height:31px;border-radius:8px;
+display:grid;place-items:center;color:white;font-weight:800
+}
+.P{background:#2468cf}
+.B{background:#c83c3c}
+.T{background:#a78328}
 @media(max-width:650px){
- .grid{grid-template-columns:1fr}
- .controls{gap:7px}
- .controls button{padding:13px 5px;font-size:13px}
+.grid{grid-template-columns:1fr}
 }
 </style>
 </head>
+
 <body>
 <main>
 
 <header class="head">
- <div>
-  <h1>🎲 Bac Bo <span class="blue">Lab</span></h1>
-  <div class="sub">Painel de histórico e análise estatística</div>
- </div>
- <div class="pill">ANÁLISE ESTATÍSTICA</div>
+<div>
+<h1>🎲 Bac Bo <span class="blue">Lab</span></h1>
+<div class="sub">Leitura experimental dos dois gráficos</div>
+</div>
+<div class="pill">CAPTURA LOCAL • SEM PREVISÃO GARANTIDA</div>
 </header>
 
 <div class="notice">
- <b>Importante:</b> o histórico mostra resultados passados.
- Não existe previsão garantida para a próxima rodada.
+<b>Importante:</b> os gráficos mostram resultados anteriores.
+Nenhum padrão garante o próximo resultado ou uma entrada lucrativa.
+A leitura automática é experimental e precisa ser conferida visualmente.
 </div>
 
 <section class="card">
- <h2 class="section-title">🖥️ Captura da mesa</h2>
- <p class="muted">Compartilhe a janela do jogo para visualizar a mesa.</p>
- <div class="actions">
-  <button id="startShare" class="btn-p" onclick="startShare()">▶ Compartilhar tela</button>
-  <button id="stopShare" onclick="stopShare()" disabled>Parar compartilhamento</button>
- </div>
- <video id="screenPreview" autoplay muted playsinline
- style="display:none;width:100%;max-height:430px;object-fit:contain;background:#050914;border:1px solid var(--line);border-radius:12px;margin-top:12px"></video>
- <div id="shareStatus" class="small" style="margin-top:10px">
-  Aguardando compartilhamento.
- </div>
- <div class="notice" style="margin-top:12px">
-  Esta versão mostra a captura ao vivo, mas ainda não reconhece automaticamente os resultados.
- </div>
-</section>
+<h2>🖥️ 1. Compartilhar a mesa</h2>
+<p class="muted">
+No Chrome, compartilhe a janela do jogo.
+Depois pause a imagem para selecionar as áreas dos dois gráficos.
+</p>
 
-<section class="grid">
- <div class="card">
-  <div class="small">PLAYER</div>
-  <div class="metric blue" id="pCount">0</div>
-  <div class="muted" id="pPct">0% do histórico</div>
-  <div class="bar"><div class="fill" id="pBar" style="background:var(--blue);width:0%"></div></div>
- </div>
- <div class="card">
-  <div class="small">TIE</div>
-  <div class="metric gold" id="tCount">0</div>
-  <div class="muted" id="tPct">0% do histórico</div>
-  <div class="bar"><div class="fill" id="tBar" style="background:var(--gold);width:0%"></div></div>
- </div>
- <div class="card">
-  <div class="small">BANKER</div>
-  <div class="metric red" id="bCount">0</div>
-  <div class="muted" id="bPct">0% do histórico</div>
-  <div class="bar"><div class="fill" id="bBar" style="background:var(--red);width:0%"></div></div>
- </div>
-</section>
-
-<section class="card">
- <h2 class="section-title">Registrar resultado</h2>
- <div class="controls">
-  <button class="btn-p" onclick="add('P')">🔵 Player</button>
-  <button class="btn-t" onclick="add('T')">🟡 Tie</button>
-  <button class="btn-b" onclick="add('B')">🔴 Banker</button>
- </div>
- <div class="actions">
-  <button onclick="undo()">↶ Desfazer última</button>
-  <button onclick="exportCSV()">⇩ Exportar CSV</button>
-  <button onclick="clearAll()">Limpar histórico</button>
- </div>
- <p class="footer">Importe uma sequência usando P, B e T.</p>
- <div style="display:flex;gap:8px;margin-top:12px">
-  <input id="bulk" placeholder="Ex.: P B B T P P B">
-  <button onclick="importBulk()">Importar</button>
- </div>
-</section>
-
-<section class="grid">
- <div class="card">
-  <div class="small">RODADAS REGISTRADAS</div>
-  <div class="metric" id="total">0</div>
- </div>
- <div class="card">
-  <div class="small">SEQUÊNCIA ATUAL</div>
-  <div class="metric" id="streak">—</div>
-  <div class="muted" id="streakDesc">Sem resultados</div>
- </div>
- <div class="card">
-  <div class="small">MAIS FREQUENTE</div>
-  <div class="metric" id="leader">—</div>
- </div>
-</section>
-
-<section class="card">
- <h2 class="section-title">Últimos resultados</h2>
- <div class="history" id="history">
-  <span class="muted">Nenhum resultado registrado.</span>
- </div>
-</section>
-
-<section class="card">
- <h2 class="section-title">Frequência por janela</h2>
- <table>
-  <thead>
-   <tr>
-    <th>Janela</th>
-    <th>Player</th>
-    <th>Tie</th>
-    <th>Banker</th>
-   </tr>
-  </thead>
-  <tbody id="windows"></tbody>
- </table>
-</section>
-
-<div class="footer">
- Os percentuais são calculados com os resultados inseridos.
- O site não se conecta ao cassino e não garante previsões.
+<div class="actions">
+<button class="primary" id="start" onclick="startShare()">▶ Compartilhar tela</button>
+<button id="stop" onclick="stopShare()" disabled>Parar</button>
+<button id="freeze" onclick="freezeFrame()" disabled>📸 Capturar quadro</button>
 </div>
+
+<video id="video" autoplay muted playsinline></video>
+<canvas id="frameCanvas"></canvas>
+
+<div class="status" id="screenStatus">
+Aguardando compartilhamento.
+</div>
+</section>
+
+<section class="card">
+<h2>🎯 2. Marcar os dois gráficos</h2>
+
+<p class="muted">
+Com um quadro capturado, arraste o mouse sobre a imagem para marcar
+primeiro o gráfico de círculos (esquerda) e depois a estrada (direita).
+Marque a área interna dos resultados, sem incluir cabeçalhos ou bordas.
+</p>
+
+<div class="actions">
+<button class="primary" id="leftMode" onclick="setMode('left')" disabled>
+1 — Marcar gráfico esquerdo
+</button>
+
+<button id="rightMode" onclick="setMode('right')" disabled>
+2 — Marcar gráfico direito
+</button>
+
+<button id="scan" onclick="scanBoth()" disabled>
+🔎 Analisar os dois gráficos
+</button>
+</div>
+
+<div class="status" id="calStatus">
+Ainda não há áreas calibradas.
+</div>
+
+<div class="roi">
+<b>Gráfico esquerdo:</b>
+<span id="leftInfo" class="muted">não marcado</span>
+</div>
+
+<div class="roi">
+<b>Gráfico direito:</b>
+<span id="rightInfo" class="muted">não marcado</span>
+</div>
+</section>
+
+<section class="grid">
+<div class="card">
+<div class="small">PLAYER DETECTADO</div>
+<div class="metric blue" id="pCount">0</div>
+</div>
+
+<div class="card">
+<div class="small">TIE DETECTADO</div>
+<div class="metric gold" id="tCount">0</div>
+</div>
+
+<div class="card">
+<div class="small">BANKER DETECTADO</div>
+<div class="metric red" id="bCount">0</div>
+</div>
+</section>
+
+<section class="card">
+<h2>📊 3. Resultado da leitura</h2>
+
+<div class="grid">
+<div>
+<div class="small">GRÁFICO ESQUERDO</div>
+<div id="leftResult" class="muted">Aguardando análise</div>
+</div>
+
+<div>
+<div class="small">GRÁFICO DIREITO</div>
+<div id="rightResult" class="muted">Aguardando análise</div>
+</div>
+
+<div>
+<div class="small">CONFERÊNCIA</div>
+<div id="matchResult" class="muted">Aguardando análise</div>
+</div>
+</div>
+
+<p class="small">
+A contagem de pixels coloridos é apenas uma leitura preliminar da imagem,
+não uma transcrição confiável das rodadas. As duas estradas têm formatos
+diferentes; por isso, esta versão não adiciona resultados automaticamente
+ao histórico nem recomenda apostas.
+</p>
+</section>
+
+<section class="card">
+<h2>🧪 4. Prévia das áreas selecionadas</h2>
+
+<div class="grid">
+<div>
+<div class="small">ESQUERDA</div>
+<canvas id="leftCrop" style="width:100%;background:#080d18;border-radius:8px"></canvas>
+</div>
+
+<div>
+<div class="small">DIREITA</div>
+<canvas id="rightCrop" style="width:100%;background:#080d18;border-radius:8px"></canvas>
+</div>
+
+<div>
+<div class="small">LEGENDA</div>
+<p class="small">
+<span class="blue">● Azul:</span> Player<br>
+<span class="red">● Vermelho:</span> Banker<br>
+<span class="gold">● Amarelo:</span> Tie
+</p>
+</div>
+</div>
+</section>
+
 </main>
 
 <script>
-let results=[];
-let displayStream=null;
+const video=document.getElementById('video');
+const canvas=document.getElementById('frameCanvas');
+const ctx=canvas.getContext('2d',{willReadFrequently:true});
 
-const names={
- P:'Player',
- T:'Tie',
- B:'Banker'
-};
+let stream=null;
+let frozen=false;
+let mode=null;
+let dragging=false;
+let startPt=null;
+let rects={left:null,right:null};
+let frameImage=null;
 
-function add(x){
- results.push(x);
- render();
-}
-
-function undo(){
- results.pop();
- render();
-}
-
-function clearAll(){
- if(confirm('Apagar todo o histórico?')){
-  results=[];
-  render();
- }
-}
-
-function importBulk(){
- let raw=document.getElementById('bulk').value.toUpperCase();
- let vals=raw.match(/[PBT]/g)||[];
-
- if(!vals.length){
-  alert('Digite P, B ou T.');
-  return;
- }
-
- results.push(...vals);
- document.getElementById('bulk').value='';
- render();
-}
-
-function pct(n,d){
- return d?(100*n/d).toFixed(1)+'%':'0%';
-}
-
-function count(a,x){
- return a.filter(v=>v===x).length;
-}
-
-function render(){
- let n=results.length;
- let p=count(results,'P');
- let t=count(results,'T');
- let b=count(results,'B');
-
- [['p',p],['t',t],['b',b]].forEach(([id,v])=>{
-  document.getElementById(id+'Count').textContent=v;
-  document.getElementById(id+'Pct').textContent=pct(v,n)+' do histórico';
-  document.getElementById(id+'Bar').style.width=pct(v,n);
- });
-
- document.getElementById('total').textContent=n;
-
- let last=n?results[n-1]:null;
- let run=0;
-
- if(last){
-  for(let i=n-1;i>=0&&results[i]===last;i--){
-   run++;
-  }
- }
-
- document.getElementById('streak').textContent=last?run+'×':'—';
- document.getElementById('streakDesc').textContent=last?names[last]+' consecutivo(s)':'Sem resultados';
-
- let max=Math.max(p,t,b);
- let leaders=[
-  ['P',p],['T',t],['B',b]
- ].filter(x=>x[1]===max&&max>0).map(x=>names[x[0]]);
-
- document.getElementById('leader').textContent=
-  leaders.length===1?leaders[0]:
-  leaders.length?'Empate':'—';
-
- let hist=document.getElementById('history');
- hist.innerHTML='';
-
- if(!n){
-  hist.innerHTML='<span class="muted">Nenhum resultado registrado.</span>';
- }
-
- results.slice(-60).forEach(x=>{
-  let d=document.createElement('div');
-  d.className='dot '+x;
-  d.textContent=x;
-  d.title=names[x];
-  hist.appendChild(d);
- });
-
- let rows='';
-
- [10,30].forEach(k=>{
-  let a=results.slice(-k);
-  let z=a.length;
-
-  rows+=`<tr>
-   <td>Últimas ${k} (${z})</td>
-   <td>${pct(count(a,'P'),z)}</td>
-   <td>${pct(count(a,'T'),z)}</td>
-   <td>${pct(count(a,'B'),z)}</td>
-  </tr>`;
- });
-
- document.getElementById('windows').innerHTML=rows;
-}
-
-function exportCSV(){
- if(!results.length){
-  alert('Ainda não há resultados.');
-  return;
- }
-
- let csv='rodada;resultado\n'+
- results.map((x,i)=>(i+1)+';'+names[x]).join('\n');
-
- let blob=new Blob(['\ufeff'+csv],{
-  type:'text/csv;charset=utf-8;'
- });
-
- let url=URL.createObjectURL(blob);
- let a=document.createElement('a');
-
- a.href=url;
- a.download='bacbo-historico.csv';
- a.click();
-
- URL.revokeObjectURL(url);
-}
+const $=id=>document.getElementById(id);
 
 async function startShare(){
- const status=document.getElementById('shareStatus');
+try{
+stream=await navigator.mediaDevices.getDisplayMedia({
+video:{frameRate:15},
+audio:false
+});
 
- try{
-  displayStream=await navigator.mediaDevices.getDisplayMedia({
-   video:{frameRate:10},
-   audio:false
-  });
+video.srcObject=stream;
+$('stop').disabled=false;
+$('freeze').disabled=false;
 
-  const video=document.getElementById('screenPreview');
+$('screenStatus').textContent=
+'Tela compartilhada. Clique em Capturar quadro para calibrar.';
 
-  video.srcObject=displayStream;
-  video.style.display='block';
+stream.getVideoTracks()[0].addEventListener('ended',stopShare);
 
-  document.getElementById('startShare').disabled=true;
-  document.getElementById('stopShare').disabled=false;
-
-  status.textContent='Tela compartilhada.';
-
-  displayStream.getVideoTracks()[0].addEventListener('ended',stopShare);
-
- }catch(e){
-  status.textContent='Compartilhamento não iniciado. Verifique a permissão do navegador.';
- }
+}catch(e){
+$('screenStatus').textContent=
+'Compartilhamento cancelado ou não permitido.';
+}
 }
 
 function stopShare(){
- if(displayStream){
-  displayStream.getTracks().forEach(t=>t.stop());
-  displayStream=null;
- }
+if(stream)stream.getTracks().forEach(t=>t.stop());
 
- const video=document.getElementById('screenPreview');
+stream=null;
+video.srcObject=null;
 
- video.srcObject=null;
- video.style.display='none';
+$('stop').disabled=true;
+$('freeze').disabled=true;
 
- document.getElementById('startShare').disabled=false;
- document.getElementById('stopShare').disabled=true;
-
- document.getElementById('shareStatus').textContent='Compartilhamento encerrado.';
+$('screenStatus').textContent='Compartilhamento encerrado.';
 }
 
-render();
+function freezeFrame(){
+if(!video.videoWidth)return;
+
+canvas.width=video.videoWidth;
+canvas.height=video.videoHeight;
+
+ctx.drawImage(video,0,0);
+
+frameImage=ctx.getImageData(0,0,canvas.width,canvas.height);
+
+canvas.style.display='block';
+video.style.display='none';
+
+frozen=true;
+
+$('leftMode').disabled=false;
+$('rightMode').disabled=false;
+
+$('screenStatus').textContent=
+'Quadro capturado. Selecione as áreas dos gráficos.';
+
+drawRects();
+}
+
+function setMode(m){
+if(!frozen)return;
+
+mode=m;
+
+$('calStatus').textContent=
+m==='left'
+?'Arraste para marcar o gráfico esquerdo.'
+:'Arraste para marcar o gráfico direito.';
+}
+
+function point(e){
+const r=canvas.getBoundingClientRect();
+
+return{
+x:Math.max(0,Math.min(canvas.width,
+(e.clientX-r.left)*canvas.width/r.width)),
+y:Math.max(0,Math.min(canvas.height,
+(e.clientY-r.top)*canvas.height/r.height))
+};
+}
+
+canvas.addEventListener('pointerdown',e=>{
+if(!mode)return;
+
+dragging=true;
+startPt=point(e);
+
+canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointermove',e=>{
+if(!dragging)return;
+
+const p=point(e);
+
+drawRects({
+x:Math.min(startPt.x,p.x),
+y:Math.min(startPt.y,p.y),
+w:Math.abs(p.x-startPt.x),
+h:Math.abs(p.y-startPt.y)
+});
+});
+
+canvas.addEventListener('pointerup',e=>{
+if(!dragging)return;
+
+dragging=false;
+
+const p=point(e);
+
+const r={
+x:Math.round(Math.min(startPt.x,p.x)),
+y:Math.round(Math.min(startPt.y,p.y)),
+w:Math.round(Math.abs(p.x-startPt.x)),
+h:Math.round(Math.abs(p.y-startPt.y))
+};
+
+if(r.w>12&&r.h>12){
+rects[mode]=r;
+updateInfo();
+}
+
+mode=null;
+drawRects();
+});
+
+function drawRects(temp=null){
+if(!frameImage)return;
+
+ctx.putImageData(frameImage,0,0);
+
+for(const [k,r] of Object.entries(rects)){
+if(r){
+ctx.strokeStyle=k==='left'?'#3988ff':'#ef5350';
+ctx.lineWidth=Math.max(3,canvas.width/500);
+ctx.strokeRect(r.x,r.y,r.w,r.h);
+}
+}
+
+if(temp){
+ctx.strokeStyle='#e2b64d';
+ctx.lineWidth=3;
+ctx.strokeRect(temp.x,temp.y,temp.w,temp.h);
+}
+}
+
+function updateInfo(){
+for(const k of ['left','right']){
+$(k+'Info').textContent=
+rects[k]?`${rects[k].w} × ${rects[k].h} px`:'não marcado';
+}
+
+$('scan').disabled=!(rects.left&&rects.right);
+
+$('calStatus').textContent=
+rects.left&&rects.right
+?'Duas áreas marcadas. Clique em Analisar os dois gráficos.'
+:'Marque as duas áreas.';
+}
+
+function colorCounts(r){
+const d=ctx.getImageData(r.x,r.y,r.w,r.h).data;
+
+let p=0,b=0,t=0;
+
+for(let i=0;i<d.length;i+=4){
+const R=d[i],G=d[i+1],B=d[i+2];
+
+if(B>115&&B>R*1.25&&B>G*1.08){
+p++;
+}
+else if(R>135&&R>G*1.35&&R>B*1.2){
+b++;
+}
+else if(R>130&&G>90&&R>B*1.4&&G>B*1.25){
+t++;
+}
+}
+
+return{p,b,t};
+}
+
+function summarize(c){
+const total=c.p+c.b+c.t;
+
+if(!total){
+return 'Não foi possível identificar pixels nas cores esperadas.';
+}
+
+return `Pixels coloridos: Player ${c.p}, Banker ${c.b}, Tie ${c.t}. Isso não equivale ao número de rodadas.`;
+}
+
+function scanBoth(){
+if(!rects.left||!rects.right)return;
+
+const l=colorCounts(rects.left);
+const r=colorCounts(rects.right);
+
+$('leftResult').textContent=summarize(l);
+$('rightResult').textContent=summarize(r);
+
+const combined={
+p:l.p+r.p,
+b:l.b+r.b,
+t:l.t+r.t
+};
+
+$('pCount').textContent=combined.p;
+$('bCount').textContent=combined.b;
+$('tCount').textContent=combined.t;
+
+$('matchResult').textContent=
+'Compare visualmente as duas leituras; contagens de pixels não são resultados.';
+
+drawCrop(rects.left,'leftCrop');
+drawCrop(rects.right,'rightCrop');
+}
+
+function drawCrop(r,id){
+const c=$(id);
+
+c.width=r.w;
+c.height=r.h;
+
+c.getContext('2d').drawImage(
+canvas,
+r.x,r.y,r.w,r.h,
+0,0,r.w,r.h
+);
+}
 </script>
 </body>
 </html>
