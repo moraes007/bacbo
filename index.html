@@ -1,906 +1,784 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bac Bo Lab PRO</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bac Bo Lab — Monitor de gráficos</title>
 <style>
 :root {
-  --bg: #0b1020;
-  --panel: #131c31;
-  --panel2: #1a2740;
-  --text: #eef3ff;
-  --muted: #9eacc7;
-  --blue: #3988ff;
-  --red: #ef5350;
-  --gold: #e2b64d;
-  --green: #35c98a;
-  --line: #293653;
+  --bg:#090f20;
+  --panel:#111c33;
+  --line:#2b3b5b;
+  --text:#eaf2ff;
+  --muted:#9bb9e7;
+  --blue:#3984ff;
+  --red:#ff5360;
+  --gold:#ffca47;
+  --green:#3acb98;
 }
-
-* {
-  box-sizing: border-box;
-}
-
+* { box-sizing:border-box }
 body {
-  margin: 0;
-  background: radial-gradient(ellipse at top, #172744, #0b1020 58%);
-  color: var(--text);
-  font-family: Arial, sans-serif;
+  margin:0;
+  background:radial-gradient(ellipse at top,#172744,#0b1020 58%);
+  color:var(--text);
+  font:15px Arial,sans-serif;
 }
-
-main {
-  max-width: 1150px;
-  margin: auto;
-  padding: 25px 18px 50px;
-}
-
+main { max-width:1160px;margin:auto;padding:24px 18px 60px }
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
 }
-
-h1 {
-  font-size: 34px;
-  margin: 0;
+h1 { margin:0;font-size:26px }
+h2 { font-size:19px;margin:0 0 14px }
+.muted,small { color:var(--muted) }
+.panel,.stat {
+  background:linear-gradient(160deg,#131e36,#10192e);
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:18px;
+  margin-bottom:15px;
 }
-
-h2 {
-  font-size: 20px;
-  margin-top: 0;
-}
-
-p {
-  line-height: 1.5;
-}
-
-.sub, .muted {
-  color: var(--muted);
-}
-
-.small {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.blue { color: var(--blue); }
-.red { color: var(--red); }
-.gold { color: var(--gold); }
-.green { color: var(--green); }
-
-.card {
-  background: linear-gradient(145deg, var(--panel), #111a2d);
-  border: 1px solid var(--line);
-  border-radius: 17px;
-  padding: 18px;
-  margin-top: 14px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 13px;
-}
-
-.metric {
-  font-size: 30px;
-  font-weight: bold;
-  margin: 10px 0;
-}
-
+.buttons { display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 }
 button {
-  cursor: pointer;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 12px 15px;
-  background: var(--panel2);
-  color: white;
-  font-weight: bold;
-  margin: 3px;
+  border:1px solid #36527b;
+  border-radius:10px;
+  padding:11px 14px;
+  background:#1b3157;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
 }
-
-button:hover {
-  filter: brightness(1.2);
+button:hover { background:#234576 }
+button:disabled { opacity:.45;cursor:not-allowed }
+.primary { background:#16498d;border-color:#3777c7 }
+.danger { background:#5b2533 }
+.videoBox {
+  position:relative;
+  overflow:hidden;
+  background:#050a14;
+  border-radius:12px;
+  border:1px solid #293b58;
+  line-height:0;
 }
-
-button:disabled {
-  opacity: .4;
-  cursor: not-allowed;
+video {
+  display:block;
+  width:100%;
+  max-height:450px;
+  object-fit:contain;
 }
-
-.primary {
-  background: #173a70;
-  border-color: #2869c9;
+#overlay {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  touch-action:none;
+  cursor:crosshair;
 }
-
-.danger {
-  background: #51272b;
-  border-color: #a93636;
+#frame { display:none;width:100%;height:auto }
+.stats {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
 }
-
-.notice {
-  border-left: 4px solid var(--gold);
-  background: #2b2516;
-  padding: 14px;
-  border-radius: 9px;
-  color: #f3e5bd;
-  margin-bottom: 15px;
-}
-
-video, #selectCanvas {
-  width: 100%;
-  max-height: 480px;
-  object-fit: contain;
-  background: #050914;
-  border-radius: 12px;
-  margin-top: 12px;
-}
-
-#selectCanvas {
-  display: none;
-  touch-action: none;
-}
-
-.status {
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.roi {
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  margin-top: 8px;
-  background: #0d1729;
-}
-
-.bar {
-  height: 9px;
-  background: #273550;
-  border-radius: 99px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.bar i {
-  display: block;
-  height: 100%;
-  width: 0%;
-  background: var(--green);
-}
-
+.stat { margin:0 }
+.stat strong { display:block;font-size:30px;margin-top:9px }
+.blue { color:var(--blue) }
+.red { color:var(--red) }
+.gold { color:var(--gold) }
+.green { color:var(--green) }
+.two { display:grid;grid-template-columns:1fr 1fr;gap:12px }
 .preview {
-  width: 100%;
-  max-height: 180px;
-  object-fit: contain;
-  background: #080d18;
-  border-radius: 8px;
+  width:100%;
+  height:auto;
+  max-height:170px;
+  object-fit:contain;
+  background:#080e1d;
+  border:1px solid #30425e;
+  border-radius:8px;
 }
-
-.log {
-  max-height: 200px;
-  overflow: auto;
-  font: 12px monospace;
-  color: var(--muted);
-  background: #0a1222;
-  padding: 12px;
-  border-radius: 9px;
-  white-space: pre-wrap;
+.info {
+  padding:10px;
+  background:#0b152a;
+  border:1px solid var(--line);
+  border-radius:8px;
+  margin-top:9px;
 }
-
-@media(max-width:700px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+#log {
+  max-height:220px;
+  overflow:auto;
+  font:13px/1.7 monospace;
+  white-space:pre-wrap;
+}
+.pill { font-size:12px;color:var(--muted) }
+@media(max-width:650px) {
+  .two { grid-template-columns:1fr }
+  .stats { gap:7px }
+  .stat { padding:12px }
+  .stat strong { font-size:24px }
 }
 </style>
 </head>
-
 <body>
 <main>
 
 <header>
   <div>
-    <h1>🎲 Bac Bo <span class="blue">Lab PRO</span></h1>
-    <div class="sub">
-      Monitor inteligente e análise estatística
+    <h1>🎯 Bac Bo Lab</h1>
+    <div class="muted">
+      Leitura visual dos dois gráficos • análise experimental
     </div>
   </div>
-
-  <div class="pill" id="liveBadge">
-    ● PARADO
-  </div>
+  <span id="status" class="green">Aguardando captura</span>
 </header>
 
-<div class="notice">
-  <b>Importante:</b> os resultados anteriores não garantem
-  os próximos. A análise estatística não prevê resultados
-  com certeza.
-</div>
-
-<section class="card">
-  <h2>🖥️ Captura da mesa</h2>
-
+<section class="panel">
+  <h2>📺 Captura da tela</h2>
   <p class="muted">
-    Compartilhe a janela do Bac Bo para acompanhar
-    visualmente os gráficos.
+    Compartilhe a janela com o Bac Bo. Selecione cada gráfico
+    diretamente sobre a imagem. O processamento ocorre neste navegador.
   </p>
-
-  <button class="primary" id="startBtn">
-    ▶ Compartilhar tela
-  </button>
-
-  <button id="stopBtn" disabled>
-    Parar compartilhamento
-  </button>
-
-  <button id="snapshotBtn" disabled>
-    📸 Capturar quadro
-  </button>
-
-  <video id="video" autoplay muted playsinline></video>
-
-  <canvas id="selectCanvas"></canvas>
-
-  <div class="status" id="screenStatus">
-    Aguardando compartilhamento.
+  <div class="buttons">
+    <button class="primary" id="startBtn">Compartilhar tela</button>
+    <button id="stopBtn">Parar captura</button>
+    <button id="snapshotBtn">Congelar imagem para marcar</button>
+    <button id="liveBtn">Voltar à imagem ao vivo</button>
   </div>
+  <div class="videoBox" id="videoBox">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="frame"></canvas>
+    <canvas id="overlay"></canvas>
+  </div>
+  <p class="muted" id="captureInfo">
+    Aguardando permissão de compartilhamento.
+  </p>
 </section>
 
-<section class="card">
+<section class="panel">
   <h2>🎯 Marcar os dois gráficos</h2>
-
   <p class="muted">
-    Marque primeiro o gráfico de círculos à esquerda
-    e depois a estrada à direita.
+    Marque somente a área branca com as bolinhas, sem incluir
+    o placar central. Primeiro o histórico à esquerda;
+    depois a estrada à direita.
   </p>
-
-  <button class="primary" id="leftBtn" disabled>
-    1 — Marcar gráfico esquerdo
-  </button>
-
-  <button id="rightBtn" disabled>
-    2 — Marcar gráfico direito
-  </button>
-
-  <button id="monitorBtn" disabled>
-    ▶ Iniciar monitor
-  </button>
-
-  <button id="pauseBtn" disabled>
-    Ⅱ Pausar análise
-  </button>
-
-  <button id="resetBtn">
-    Limpar marcações
-  </button>
-
-  <div class="status" id="calStatus">
-    Nenhuma região marcada.
+  <div class="buttons">
+    <button class="primary" id="leftBtn">
+      1 — Marcar gráfico esquerdo
+    </button>
+    <button id="rightBtn">2 — Marcar gráfico direito</button>
+    <button class="primary" id="monitorBtn">▶ Iniciar monitor</button>
+    <button id="pauseBtn">Ⅱ Pausar análise</button>
+    <button class="danger" id="resetBtn">Limpar marcações</button>
   </div>
-
-  <div class="roi">
-    <b>Gráfico esquerdo:</b>
-    <span id="leftInfo">Não marcado</span>
-  </div>
-
-  <div class="roi">
-    <b>Gráfico direito:</b>
-    <span id="rightInfo">Não marcado</span>
+  <div id="selectionInfo" class="muted">Nenhuma área marcada.</div>
+  <div class="two">
+    <div>
+      <div class="info" id="leftInfo">
+        Gráfico esquerdo: não marcado
+      </div>
+      <canvas class="preview" id="leftPreview"
+        width="380" height="130"></canvas>
+    </div>
+    <div>
+      <div class="info" id="rightInfo">
+        Gráfico direito: não marcado
+      </div>
+      <canvas class="preview" id="rightPreview"
+        width="380" height="130"></canvas>
+    </div>
   </div>
 </section>
 
-<section class="grid">
-
-  <div class="card">
-    <div class="small">🔵 PLAYER</div>
-    <div class="metric blue" id="pCount">0</div>
-    <div class="small">Grupos de cor detectados</div>
+<section class="stats">
+  <div class="stat">
+    <span class="muted">🔵 PLAYER</span>
+    <strong class="blue" id="playerCount">—</strong>
+    <small>Bolinhas azuis reconhecidas</small>
   </div>
-
-  <div class="card">
-    <div class="small">🟡 TIE</div>
-    <div class="metric gold" id="tCount">0</div>
-    <div class="small">Grupos de cor detectados</div>
+  <div class="stat">
+    <span class="muted">🟡 TIE</span>
+    <strong class="gold" id="tieCount">—</strong>
+    <small>Marcações amarelas reconhecidas</small>
   </div>
-
-  <div class="card">
-    <div class="small">🔴 BANKER</div>
-    <div class="metric red" id="bCount">0</div>
-    <div class="small">Grupos de cor detectados</div>
+  <div class="stat">
+    <span class="muted">🔴 BANKER</span>
+    <strong class="red" id="bankerCount">—</strong>
+    <small>Bolinhas vermelhas reconhecidas</small>
   </div>
-
 </section>
 
-<section class="card">
+<section class="panel">
   <h2>📊 Estado do monitor</h2>
-
-  <div class="grid">
-    <div>
-      <div class="small">GRÁFICO ESQUERDO</div>
-      <div id="leftStatus">Aguardando</div>
+  <div class="two">
+    <div class="info" id="leftState">
+      Histórico: aguardando leitura
     </div>
-
-    <div>
-      <div class="small">GRÁFICO DIREITO</div>
-      <div id="rightStatus">Aguardando</div>
-    </div>
-
-    <div>
-      <div class="small">ÚLTIMA ATUALIZAÇÃO</div>
-      <div id="updatedAt">—</div>
+    <div class="info" id="rightState">
+      Estrada: aguardando leitura
     </div>
   </div>
-
-  <br>
-
-  <div class="small">
-    Estabilidade visual da imagem
+  <div class="info" id="updateState">Última atualização: —</div>
+  <div class="info" id="roundState">
+    Novas rodadas confirmadas: 0 (experimental)
   </div>
-
-  <div id="stability">—</div>
-
-  <div class="bar">
-    <i id="stabilityBar"></i>
-  </div>
-
-  <p id="interpretation" class="muted">
-    Aguardando monitoramento.
+  <p class="muted">
+    O gráfico da direita é uma visualização derivada, não uma
+    segunda fonte de rodadas. Empates sobrepostos ou bolinhas
+    muito pequenas podem exigir calibração adicional.
   </p>
 </section>
 
-<section class="card">
-  <h2>🔬 Prévia dos gráficos</h2>
-
-  <div class="grid">
-    <div>
-      <div class="small">GRÁFICO ESQUERDO</div>
-      <canvas class="preview" id="leftPreview"></canvas>
-    </div>
-
-    <div>
-      <div class="small">GRÁFICO DIREITO</div>
-      <canvas class="preview" id="rightPreview"></canvas>
-    </div>
-
-    <div>
-      <div class="small">LEGENDA</div>
-      <p class="small">
-        <span class="blue">● Player</span><br>
-        <span class="gold">● Tie</span><br>
-        <span class="red">● Banker</span>
-      </p>
-    </div>
+<section class="panel">
+  <h2>📝 Registro de mudanças</h2>
+  <div class="buttons">
+    <button id="clearLogBtn">Limpar registro</button>
   </div>
+  <div id="log">Pronto para iniciar.</div>
 </section>
 
-<section class="card">
-  <h2>🧾 Registro de atividade</h2>
-  <div class="log" id="activityLog">
-    Bac Bo Lab iniciado.
-  </div>
+<section class="panel">
+  <small>
+    Ferramenta de reconhecimento visual experimental.
+    Não prevê resultados nem oferece sinais confiáveis de apostas.
+    Os totais podem divergir do histórico real se houver animações,
+    mudança de escala ou sobreposição.
+  </small>
 </section>
+
 </main>
+
 <script>
-"use strict";
+'use strict';
 
 const $ = id => document.getElementById(id);
-
-const video = $("video");
-const canvas = $("selectCanvas");
-const ctx = canvas.getContext("2d", { willReadFrequently: true });
+const video = $('video');
+const frame = $('frame');
+const overlay = $('overlay');
+const ctx = overlay.getContext('2d');
 
 let stream = null;
-let frozenFrame = null;
-let regions = { left: null, right: null };
 let mode = null;
-let dragStart = null;
-let dragging = false;
-let timer = null;
-let previousSignature = null;
+let regions = {left:null,right:null};
+let drag = null;
+let monitorTimer = null;
+let stableKey = '';
 let stableFrames = 0;
-let lastCounts = null;
+let baseline = null;
+let confirmed = 0;
+let lastLoggedKey = '';
 
-function log(message) {
-  const el = $("activityLog");
-  const time = new Date().toLocaleTimeString("pt-BR");
-  el.textContent = `[${time}] ${message}\n` + el.textContent;
-  el.textContent = el.textContent.slice(0, 5000);
+const sample = document.createElement('canvas');
+const sc = sample.getContext('2d',{willReadFrequently:true});
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+function log(s) {
+  const el = $('log');
+  el.textContent =
+    '[' + new Date().toLocaleTimeString('pt-BR') + '] ' +
+    s + '\n' + el.textContent.slice(0,9000);
 }
 
-// 1. COMPARTILHAR TELA
+function status(s) {
+  $('status').textContent = s;
+}
 
-async function startShare() {
+function size() {
+  return {
+    w:video.videoWidth || frame.width,
+    h:video.videoHeight || frame.height
+  };
+}
+
+function syncOverlay() {
+  const r = video.getBoundingClientRect();
+  const isFrozen = frame.style.display === 'block';
+  const target = isFrozen ? frame : video;
+  const b = target.getBoundingClientRect();
+
+  overlay.width = Math.max(
+    1,Math.round(b.width*devicePixelRatio)
+  );
+  overlay.height = Math.max(
+    1,Math.round(b.height*devicePixelRatio)
+  );
+
+  overlay.style.left =
+    (b.left-$('videoBox').getBoundingClientRect().left)+'px';
+  overlay.style.top =
+    (b.top-$('videoBox').getBoundingClientRect().top)+'px';
+  overlay.style.width = b.width+'px';
+  overlay.style.height = b.height+'px';
+
+  drawOverlay();
+}
+
+function drawOverlay() {
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+  const {w,h} = size();
+  if(!w || !h) return;
+
+  for(const [name,rect] of Object.entries(regions)) {
+    if(rect) {
+      outline(
+        rect,
+        name==='left'?'#3984ff':'#ffca47',
+        name
+      );
+    }
+  }
+
+  if(drag) {
+    outline(
+      rectFrom(drag.a,drag.b),
+      mode==='left'?'#3984ff':'#ffca47',
+      'seleção'
+    );
+  }
+}
+
+function outline(rect,color,label) {
+  const {w,h} = size();
+  const sx = overlay.width/w;
+  const sy = overlay.height/h;
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.strokeRect(
+    rect.x*sx,rect.y*sy,rect.w*sx,rect.h*sy
+  );
+  ctx.fillStyle = color;
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText(
+    label,
+    rect.x*sx+5,
+    Math.max(15,rect.y*sy-6)
+  );
+}
+
+function rectFrom(a,b) {
+  return {
+    x:Math.round(Math.min(a.x,b.x)),
+    y:Math.round(Math.min(a.y,b.y)),
+    w:Math.round(Math.abs(a.x-b.x)),
+    h:Math.round(Math.abs(a.y-b.y))
+  };
+}
+
+function point(e) {
+  const b = overlay.getBoundingClientRect();
+  const {w,h} = size();
+
+  return {
+    x:Math.max(
+      0,Math.min(w,((e.clientX-b.left)/b.width)*w)
+    ),
+    y:Math.max(
+      0,Math.min(h,((e.clientY-b.top)/b.height)*h)
+    )
+  };
+}
+
+overlay.addEventListener('pointerdown',e=>{
+  if(!mode) return;
+  overlay.setPointerCapture(e.pointerId);
+  drag = {a:point(e),b:point(e)};
+  drawOverlay();
+});
+
+overlay.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  drag.b = point(e);
+  drawOverlay();
+});
+
+overlay.addEventListener('pointerup',e=>{
+  if(!drag) return;
+  drag.b = point(e);
+  const r = rectFrom(drag.a,drag.b);
+
+  if(r.w>=25 && r.h>=20) {
+    regions[mode] = r;
+    $(mode+'Info').textContent =
+      (mode==='left'
+        ?'Gráfico esquerdo: '
+        :'Gráfico direito: ')+
+      r.w+' × '+r.h+' pixels';
+    log('Região '+mode+' marcada');
+  }
+
+  drag = null;
+  mode = null;
+
+  $('selectionInfo').textContent =
+    regions.left && regions.right
+      ?'Os dois gráficos foram marcados!'
+      :'Marque as duas regiões.';
+
+  drawOverlay();
+});
+
+$('leftBtn').onclick=()=>{
+  mode='left';
+  status('Arraste para marcar o gráfico esquerdo');
+};
+
+$('rightBtn').onclick=()=>{
+  mode='right';
+  status('Arraste para marcar o gráfico direito');
+};
+
+$('startBtn').onclick=async()=>{
   try {
+    stopCapture();
     stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { frameRate: 15 },
-      audio: false
+      video:{frameRate:10},
+      audio:false
     });
 
     video.srcObject = stream;
     await video.play();
+    video.onloadedmetadata = syncOverlay;
 
-    $("stopBtn").disabled = false;
-    $("snapshotBtn").disabled = false;
+    stream.getVideoTracks()[0].addEventListener(
+      'ended',stopCapture
+    );
 
-    $("screenStatus").textContent =
-      "Tela conectada. Capture um quadro para marcar os gráficos.";
+    frame.style.display='none';
+    video.style.display='block';
 
-    $("liveBadge").textContent = "● TELA CONECTADA";
-    $("liveBadge").style.color = "var(--green)";
+    $('captureInfo').textContent =
+      'Tela compartilhada. Você pode congelar a imagem '+
+      'para marcar as regiões.';
 
-    stream.getVideoTracks()[0].addEventListener("ended", stopShare);
-
-    log("Compartilhamento iniciado.");
-
-  } catch (error) {
-    $("screenStatus").textContent =
-      "Não foi possível compartilhar a tela.";
-
-    log("Captura cancelada ou não permitida.");
+    status('Captura ativa');
+    setTimeout(syncOverlay,300);
+    log('Captura iniciada');
+  } catch(e) {
+    status('Permissão negada ou captura indisponível');
+    log('Falha na captura: '+e.message);
   }
+};
+
+function stopCapture() {
+  pause();
+  if(stream) {
+    stream.getTracks().forEach(t=>t.stop());
+    stream=null;
+  }
+  video.srcObject=null;
+  status('Captura parada');
 }
 
-// 2. PARAR CAPTURA
+$('stopBtn').onclick=stopCapture;
 
-function stopShare() {
-  pauseMonitor();
-
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+$('snapshotBtn').onclick=()=>{
+  if(!video.videoWidth) {
+    return log('Compartilhe uma tela primeiro');
   }
 
-  stream = null;
-  video.srcObject = null;
+  frame.width=video.videoWidth;
+  frame.height=video.videoHeight;
+  frame.getContext('2d').drawImage(video,0,0);
 
-  $("stopBtn").disabled = true;
-  $("snapshotBtn").disabled = true;
+  frame.style.display='block';
+  video.style.display='none';
+  syncOverlay();
+  log('Imagem congelada para seleção');
+};
 
-  $("screenStatus").textContent = "Compartilhamento encerrado.";
-  $("liveBadge").textContent = "● PARADO";
-  $("liveBadge").style.color = "";
+$('liveBtn').onclick=()=>{
+  frame.style.display='none';
+  video.style.display='block';
+  syncOverlay();
+  log('Visualização ao vivo');
+};
 
-  log("Compartilhamento encerrado.");
+$('resetBtn').onclick=()=>{
+  pause();
+  regions={left:null,right:null};
+  baseline=null;
+  confirmed=0;
+  stableKey='';
+  stableFrames=0;
+
+  $('roundState').textContent =
+    'Novas rodadas confirmadas: 0 (experimental)';
+  $('leftInfo').textContent =
+    'Gráfico esquerdo: não marcado';
+  $('rightInfo').textContent =
+    'Gráfico direito: não marcado';
+  $('selectionInfo').textContent =
+    'Nenhuma área marcada.';
+
+  drawOverlay();
+  log('Marcações apagadas');
+};
+
+$('clearLogBtn').onclick=()=>{
+  $('log').textContent='';
+};
+
+window.addEventListener('resize',syncOverlay);
+
+function capture() {
+  if(!video.videoWidth || !video.videoHeight) {
+    return false;
+  }
+  sample.width=video.videoWidth;
+  sample.height=video.videoHeight;
+  sc.drawImage(video,0,0);
+  return true;
 }
 
-// 3. CAPTURAR QUADRO
+function crop(r,preview) {
+  const c=$(preview);
+  const g=c.getContext('2d');
 
-function captureFrame() {
-  if (!video.videoWidth) return;
+  c.width=r.w;
+  c.height=r.h;
 
-  pauseMonitor();
+  g.drawImage(
+    sample,r.x,r.y,r.w,r.h,
+    0,0,r.w,r.h
+  );
+}
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+// Classificação HSV: centros coloridos de círculos,
+// excluindo quase branco e tons escuros.
+function classify(R,G,B) {
+  const max=Math.max(R,G,B);
+  const min=Math.min(R,G,B);
+  const d=max-min;
 
-  ctx.drawImage(video, 0, 0);
+  if(max<85 || d<38 || d/max<.32) return 0;
 
-  frozenFrame = ctx.getImageData(
-    0, 0, canvas.width, canvas.height
+  let h;
+  if(max===R) h=((G-B)/d+6)%6;
+  else if(max===G) h=(B-R)/d+2;
+  else h=(R-G)/d+4;
+
+  h*=60;
+
+  if(h>=195 && h<=255 && B>R*1.18) return 1;
+  if((h<=15 || h>=348) && R>G*1.3) return 2;
+  if(h>=30 && h<=62 && R>115 && G>75) return 3;
+
+  return 0;
+}
+
+// Detecta componentes coloridos e aplica limites
+// de tamanho, densidade e proporção.
+function detect(r) {
+  const data=sc.getImageData(r.x,r.y,r.w,r.h).data;
+  const w=r.w;
+  const h=r.h;
+  const N=w*h;
+
+  const labels=new Uint8Array(N);
+  const seen=new Uint8Array(N);
+  const counts=[0,0,0,0];
+  const centers=[];
+
+  for(let i=0;i<N;i++) {
+    labels[i]=classify(
+      data[i*4],
+      data[i*4+1],
+      data[i*4+2]
+    );
+  }
+
+  const queue=new Int32Array(N);
+
+  for(let i=0;i<N;i++) {
+    let color=labels[i];
+    if(!color || seen[i]) continue;
+
+    let head=0;
+    let tail=0;
+    let minX=w,maxX=0,minY=h,maxY=0;
+
+    queue[tail++]=i;
+    seen[i]=1;
+
+    while(head<tail) {
+      const v=queue[head++];
+      const x=v%w;
+      const y=(v/w)|0;
+
+      minX=Math.min(minX,x);
+      maxX=Math.max(maxX,x);
+      minY=Math.min(minY,y);
+      maxY=Math.max(maxY,y);
+
+      for(const n of [v-1,v+1,v-w,v+w]) {
+        if(n<0 || n>=N || seen[n] ||
+           labels[n]!==color) continue;
+
+        const nx=n%w;
+        if(Math.abs(nx-x)>1) continue;
+
+        seen[n]=1;
+        queue[tail++]=n;
+      }
+    }
+
+    const bw=maxX-minX+1;
+    const bh=maxY-minY+1;
+    const ratio=bw/bh;
+    const area=bw*bh;
+
+    if(
+      tail<5 ||
+      area<12 ||
+      bw<3 ||
+      bh<3 ||
+      ratio<.45 ||
+      ratio>2.2 ||
+      bw>Math.min(32,w*.13) ||
+      bh>Math.min(32,h*.35) ||
+      tail/area<.18
+    ) continue;
+
+    centers.push({
+      x:(minX+maxX)/2,
+      y:(minY+maxY)/2,
+      color,
+      area:tail
+    });
+  }
+
+  // Une fragmentos de um mesmo círculo.
+  centers.sort((a,b)=>b.area-a.area);
+  const merged=[];
+
+  for(const c of centers) {
+    const near=merged.find(p=>
+      p.color===c.color &&
+      Math.hypot(p.x-c.x,p.y-c.y)<
+      Math.max(5,Math.min(12,Math.sqrt(p.area)*1.6))
+    );
+
+    if(near) continue;
+    merged.push(c);
+    counts[c.color]++;
+  }
+
+  return {counts,centers:merged};
+}
+
+function signature(result) {
+  const c=result.centers.slice().sort(
+    (a,b)=>a.y-b.y || a.x-b.x
   );
 
-  canvas.style.display = "block";
-  video.style.display = "none";
-
-  $("leftBtn").disabled = false;
-  $("rightBtn").disabled = false;
-
-  drawSelection();
-
-  $("screenStatus").textContent =
-    "Imagem capturada. Agora marque os dois gráficos.";
-
-  log("Quadro capturado.");
+  return c.map(p=>
+    p.color+':'+
+    Math.round(p.x/5)+':'+
+    Math.round(p.y/5)
+  ).join('|');
 }
 
-// 4. MARCAR REGIÕES
+function tick() {
+  if(!regions.left || !regions.right || !capture()) return;
 
-function setMode(which) {
-  if (!frozenFrame) {
-    $("calStatus").textContent =
-      "Capture um quadro primeiro.";
+  const left=detect(regions.left);
+  const right=detect(regions.right);
+
+  crop(regions.left,'leftPreview');
+  crop(regions.right,'rightPreview');
+
+  $('playerCount').textContent=left.counts[1];
+  $('bankerCount').textContent=left.counts[2];
+  $('tieCount').textContent=left.counts[3];
+
+  $('leftState').textContent=
+    'Histórico esquerdo: azul '+left.counts[1]+
+    ' | amarelo '+left.counts[3]+
+    ' | vermelho '+left.counts[2];
+
+  $('rightState').textContent=
+    'Estrada direita (referência): azul '+right.counts[1]+
+    ' | amarelo '+right.counts[3]+
+    ' | vermelho '+right.counts[2];
+
+  $('updateState').textContent=
+    'Última atualização: '+
+    new Date().toLocaleTimeString('pt-BR');
+
+  const key=signature(left);
+
+  if(key===stableKey) {
+    stableFrames++;
+  } else {
+    stableKey=key;
+    stableFrames=1;
+  }
+
+  if(stableFrames>=3 && key!==lastLoggedKey) {
+    lastLoggedKey=key;
+
+    const total=
+      left.counts[1]+left.counts[2]+left.counts[3];
+
+    if(baseline===null) {
+      baseline=total;
+      log('Leitura inicial estabilizada: '+
+          total+' marcações aproximadas');
+    } else if(total>baseline && total-baseline<=3) {
+      const delta=total-baseline;
+      confirmed+=delta;
+      baseline=total;
+      log('Possível(is) nova(s) marcação(ões): +'+
+          delta+' (revisão necessária)');
+    } else if(total!==baseline) {
+      baseline=total;
+      log('Histórico alterado/reorganizado; '+
+          'contagem de rodadas não incrementada');
+    } else {
+      log('Posições do histórico mudaram '+
+          'sem alteração no total');
+    }
+
+    $('roundState').textContent=
+      'Mudanças incrementais estimadas: '+
+      confirmed+' (não confirmadas como rodadas)';
+  }
+}
+
+$('monitorBtn').onclick=()=>{
+  if(!stream || !regions.left || !regions.right) {
+    log('Compartilhe a tela e marque os dois gráficos '+
+        'antes de iniciar');
     return;
   }
 
-  pauseMonitor();
-  mode = which;
+  pause();
+  stableKey='';
+  stableFrames=0;
+  lastLoggedKey='';
 
-  $("calStatus").textContent =
-    which === "left"
-      ? "Arraste sobre o gráfico esquerdo."
-      : "Arraste sobre o gráfico direito.";
-}
+  monitorTimer=setInterval(tick,1300);
+  tick();
 
-function getPosition(event) {
-  const rect = canvas.getBoundingClientRect();
+  status('Monitoramento ativo');
+  log('Monitor iniciado');
+};
 
-  return {
-    x: Math.max(0, Math.min(
-      canvas.width,
-      (event.clientX - rect.left) * canvas.width / rect.width
-    )),
-    y: Math.max(0, Math.min(
-      canvas.height,
-      (event.clientY - rect.top) * canvas.height / rect.height
-    ))
-  };
-}
-
-canvas.addEventListener("pointerdown", event => {
-  if (!mode) return;
-
-  dragging = true;
-  dragStart = getPosition(event);
-  canvas.setPointerCapture(event.pointerId);
-});
-
-canvas.addEventListener("pointermove", event => {
-  if (!dragging) return;
-
-  const p = getPosition(event);
-
-  drawSelection({
-    x: Math.min(p.x, dragStart.x),
-    y: Math.min(p.y, dragStart.y),
-    w: Math.abs(p.x - dragStart.x),
-    h: Math.abs(p.y - dragStart.y)
-  });
-});
-
-canvas.addEventListener("pointerup", event => {
-  if (!dragging) return;
-
-  dragging = false;
-
-  const p = getPosition(event);
-
-  const rect = {
-    x: Math.round(Math.min(p.x, dragStart.x)),
-    y: Math.round(Math.min(p.y, dragStart.y)),
-    w: Math.round(Math.abs(p.x - dragStart.x)),
-    h: Math.round(Math.abs(p.y - dragStart.y))
-  };
-
-  if (rect.w > 15 && rect.h > 15) {
-    regions[mode] = rect;
-    updateRegions();
-  }
-
-  mode = null;
-  drawSelection();
-});
-
-function drawSelection(temp = null) {
-  if (!frozenFrame) return;
-
-  ctx.putImageData(frozenFrame, 0, 0);
-
-  for (const key of ["left", "right"]) {
-    const r = regions[key];
-
-    if (r) {
-      ctx.strokeStyle =
-        key === "left" ? "#3988ff" : "#ef5350";
-
-      ctx.lineWidth = 4;
-      ctx.strokeRect(r.x, r.y, r.w, r.h);
-    }
-  }
-
-  if (temp) {
-    ctx.strokeStyle = "#e2b64d";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(temp.x, temp.y, temp.w, temp.h);
+function pause() {
+  if(monitorTimer) {
+    clearInterval(monitorTimer);
+    monitorTimer=null;
+    log('Monitor pausado');
   }
 }
 
-function updateRegions() {
-  for (const key of ["left", "right"]) {
-    const r = regions[key];
-
-    $(key + "Info").textContent = r
-      ? `${r.w} × ${r.h} pixels`
-      : "Não marcado";
-  }
-
-  const ready = regions.left && regions.right;
-
-  $("monitorBtn").disabled = !ready || !stream;
-
-  $("calStatus").textContent = ready
-    ? "Os dois gráficos foram marcados!"
-    : "Marque o outro gráfico.";
-
-  drawSelection();
-
-  drawPreview(regions.left, "leftPreview");
-  drawPreview(regions.right, "rightPreview");
-}
-
-function drawPreview(rect, id) {
-  if (!rect) return;
-
-  const c = $(id);
-  c.width = rect.w;
-  c.height = rect.h;
-
-  c.getContext("2d").drawImage(
-    canvas,
-    rect.x, rect.y, rect.w, rect.h,
-    0, 0, rect.w, rect.h
-  );
-}
-
-// 5. RECONHECIMENTO APROXIMADO DE CORES
-
-function classifyColor(r, g, b) {
-  if (b > 105 && b > r * 1.20 && b > g * 1.03) {
-    return "P";
-  }
-
-  if (r > 125 && r > g * 1.28 && r > b * 1.15) {
-    return "B";
-  }
-
-  if (r > 125 && g > 85 &&
-      r > b * 1.35 && g > b * 1.20) {
-    return "T";
-  }
-
-  return null;
-}
-
-function analyzeColors(imageData) {
-  const data = imageData.data;
-
-  const result = {
-    P: 0,
-    B: 0,
-    T: 0
-  };
-
-  let total = 0;
-
-  // Amostragem de pixels para reduzir o processamento.
-  for (let i = 0; i < data.length; i += 16) {
-    const color = classifyColor(
-      data[i],
-      data[i + 1],
-      data[i + 2]
-    );
-
-    if (color) {
-      result[color]++;
-    }
-
-    total++;
-  }
-
-  result.totalPixels = total;
-
-  return result;
-}
-
-function getCrop(source, rect) {
-  const c = document.createElement("canvas");
-
-  c.width = rect.w;
-  c.height = rect.h;
-
-  const cctx = c.getContext("2d", {
-    willReadFrequently: true
-  });
-
-  cctx.drawImage(
-    source,
-    rect.x, rect.y, rect.w, rect.h,
-    0, 0, rect.w, rect.h
-  );
-
-  return cctx.getImageData(
-    0, 0, rect.w, rect.h
-  );
-}
-
-// 6. IDENTIFICAR MUDANÇAS NA IMAGEM
-
-function getSignature(imageData) {
-  const data = imageData.data;
-
-  let hash = 2166136261;
-
-  for (let i = 0; i < data.length; i += 64) {
-    hash ^= data[i];
-    hash = Math.imul(hash, 16777619);
-  }
-
-  return hash >>> 0;
-}
-
-// 7. MONITORAMENTO AUTOMÁTICO
-
-function analyzeLive() {
-  if (!stream || !video.videoWidth) return;
-  if (!regions.left || !regions.right) return;
-
-  const source = document.createElement("canvas");
-
-  source.width = video.videoWidth;
-  source.height = video.videoHeight;
-
-  const sctx = source.getContext("2d", {
-    willReadFrequently: true
-  });
-
-  sctx.drawImage(video, 0, 0);
-
-  const leftData = getCrop(source, regions.left);
-  const rightData = getCrop(source, regions.right);
-
-  const left = analyzeColors(leftData);
-  const right = analyzeColors(rightData);
-
-  $("pCount").textContent = left.P;
-  $("bCount").textContent = left.B;
-  $("tCount").textContent = left.T;
-
-  $("leftStatus").textContent =
-    `Azul: ${left.P} | Amarelo: ${left.T} | Vermelho: ${left.B}`;
-
-  $("rightStatus").textContent =
-    `Azul: ${right.P} | Amarelo: ${right.T} | Vermelho: ${right.B}`;
-
-  const signature =
-    getSignature(leftData) ^
-    getSignature(rightData);
-
-  if (signature === previousSignature) {
-    stableFrames++;
-  } else {
-    stableFrames = 0;
-    previousSignature = signature;
-  }
-
-  const stability = Math.min(
-    100,
-    Math.round(stableFrames / 8 * 100)
-  );
-
-  $("stability").textContent = stability + "%";
-  $("stabilityBar").style.width = stability + "%";
-
-  $("updatedAt").textContent =
-    new Date().toLocaleTimeString("pt-BR");
-
-  const current = JSON.stringify({ left, right });
-
-  if (lastCounts !== current) {
-    log("Alteração visual detectada. Resultado ainda não confirmado.");
-    lastCounts = current;
-  }
-
-  $("interpretation").textContent =
-    "Monitor ativo. Alterações visuais não confirmam uma nova rodada.";
-
-  drawLivePreview(source, regions.left, "leftPreview");
-  drawLivePreview(source, regions.right, "rightPreview");
-}
-
-function drawLivePreview(source, rect, id) {
-  const c = $(id);
-
-  c.width = rect.w;
-  c.height = rect.h;
-
-  c.getContext("2d").drawImage(
-    source,
-    rect.x, rect.y, rect.w, rect.h,
-    0, 0, rect.w, rect.h
-  );
-}
-
-// 8. INICIAR MONITOR
-
-function startMonitor() {
-  if (!stream || !regions.left || !regions.right) return;
-
-  if (timer) clearInterval(timer);
-
-  $("monitorBtn").disabled = true;
-  $("pauseBtn").disabled = false;
-
-  $("liveBadge").textContent = "● MONITORANDO";
-  $("liveBadge").style.color = "var(--green)";
-
-  $("screenStatus").textContent =
-    "Monitoramento automático em funcionamento.";
-
-  canvas.style.display = "none";
-  video.style.display = "block";
-
-  timer = setInterval(analyzeLive, 1200);
-
-  analyzeLive();
-
-  log("Monitor automático iniciado.");
-}
-
-// 9. PAUSAR
-
-function pauseMonitor() {
-  if (timer) clearInterval(timer);
-
-  timer = null;
-
-  $("pauseBtn").disabled = true;
-  $("monitorBtn").disabled =
-    !(stream && regions.left && regions.right);
-
-  if (stream) {
-    $("liveBadge").textContent = "● PAUSADO";
-    $("liveBadge").style.color = "var(--gold)";
-
-    $("screenStatus").textContent =
-      "Monitor pausado. Compartilhamento continua ativo.";
-  }
-}
-
-// 10. LIMPAR MARCAÇÕES
-
-function resetRegions() {
-  pauseMonitor();
-
-  regions = {
-    left: null,
-    right: null
-  };
-
-  $("leftInfo").textContent = "Não marcado";
-  $("rightInfo").textContent = "Não marcado";
-
-  $("monitorBtn").disabled = true;
-
-  $("leftBtn").disabled = !frozenFrame;
-  $("rightBtn").disabled = !frozenFrame;
-
-  $("leftStatus").textContent = "Aguardando";
-  $("rightStatus").textContent = "Aguardando";
-
-  $("leftPreview").width = 1;
-  $("rightPreview").width = 1;
-
-  $("calStatus").textContent =
-    "Marcações apagadas.";
-
-  if (frozenFrame) drawSelection();
-
-  log("Marcações apagadas.");
-}
-
-// 11. CONECTAR BOTÕES
-
-$("startBtn").addEventListener("click", startShare);
-$("stopBtn").addEventListener("click", stopShare);
-$("snapshotBtn").addEventListener("click", captureFrame);
-
-$("leftBtn").addEventListener("click", () => {
-  setMode("left");
-});
-
-$("rightBtn").addEventListener("click", () => {
-  setMode("right");
-});
-
-$("monitorBtn").addEventListener("click", startMonitor);
-$("pauseBtn").addEventListener("click", pauseMonitor);
-$("resetBtn").addEventListener("click", resetRegions);
-
+$('pauseBtn').onclick=()=>{
+  pause();
+  status('Monitor pausado');
+};
 </script>
 </body>
 </html>
