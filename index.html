@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bac Bo Lab | Análise de Padrões</title>
+
 <style>
 :root {
   --bg:#090f20;
@@ -23,7 +24,11 @@ body {
   color:var(--text);
   font:15px Arial,sans-serif;
 }
-main { max-width:1160px;margin:auto;padding:24px 16px 60px }
+main {
+  max-width:1160px;
+  margin:auto;
+  padding:24px 16px 60px;
+}
 header {
   display:flex;
   justify-content:space-between;
@@ -37,6 +42,7 @@ h2 { margin:0 0 15px;font-size:19px }
 h3 { margin:0 0 10px;font-size:15px }
 p { line-height:1.5 }
 .muted,small { color:var(--muted) }
+
 .panel,.stat {
   background:linear-gradient(160deg,#142039,#10192e);
   border:1px solid var(--line);
@@ -63,6 +69,7 @@ button:hover { background:#244576 }
 .primary { background:#16498d;border-color:#3777c7 }
 .danger { background:#5b2533 }
 button:disabled { opacity:.45;cursor:not-allowed }
+
 .videoBox {
   position:relative;
   background:#050a14;
@@ -106,6 +113,7 @@ video {
 .red { color:var(--red) }
 .gold { color:var(--gold) }
 .green { color:var(--green) }
+
 .info {
   padding:12px;
   background:#0b152a;
@@ -153,6 +161,7 @@ video {
 .ball.P { background:var(--blue) }
 .ball.B { background:var(--red) }
 .ball.T { background:var(--gold);color:#342400 }
+
 .bigResult {
   text-align:center;
   padding:22px;
@@ -167,6 +176,7 @@ video {
   margin:12px 0;
 }
 .bigResult p { margin:6px 0 }
+
 .progress {
   height:11px;
   background:#25334c;
@@ -176,12 +186,14 @@ video {
   margin-top:10px;
 }
 .progress span { height:100% }
+
 #log {
   max-height:230px;
   overflow:auto;
   white-space:pre-wrap;
   font:13px/1.7 monospace;
 }
+
 @media(max-width:650px) {
   .two { grid-template-columns:1fr }
   .three { gap:6px }
@@ -191,6 +203,7 @@ video {
 }
 </style>
 </head>
+
 <body>
 <main>
 
@@ -309,9 +322,9 @@ video {
       </h2>
     </div>
     <div class="info">
-      <small>Próxima entrada</small>
+      <small>Indicação experimental</small>
       <h2 id="nextEntry" class="gold" style="margin-top:9px">
-        AGUARDAR
+        AGUARDANDO
       </h2>
     </div>
   </div>
@@ -324,8 +337,8 @@ video {
   </div>
 
   <p class="muted">
-    Padrões históricos não comprovam vantagem para apostas.
-    O painel não fornece probabilidades de acerto garantidas.
+    A indicação é baseada na frequência dos resultados reconhecidos.
+    Ela não é uma previsão confiável nem garante vantagem em apostas.
   </p>
 </section>
 
@@ -414,8 +427,8 @@ video {
     Bac Bo Lab — ferramenta experimental de leitura visual.
     O reconhecimento pode apresentar erros, principalmente em
     empates sobrepostos, mudanças de escala e animações.
-    Os resultados são independentes; padrões anteriores não
-    permitem prever com segurança a próxima rodada.
+    Os resultados anteriores não permitem prever com segurança
+    a próxima rodada.
   </small>
 </section>
 
@@ -690,7 +703,6 @@ $('clearLogBtn').onclick=()=>{
 
 window.addEventListener('resize',syncOverlay);
 
-// Captura o quadro atual.
 function capture() {
   if(!video.videoWidth || !video.videoHeight)
     return false;
@@ -712,7 +724,6 @@ function crop(r,id) {
   );
 }
 
-// Classificação básica de cores.
 function classify(R,G,B) {
   const max=Math.max(R,G,B);
   const min=Math.min(R,G,B);
@@ -741,7 +752,6 @@ function classify(R,G,B) {
   return 0;
 }
 
-// Localiza componentes coloridos.
 function detect(r) {
   const data=sc.getImageData(
     r.x,r.y,r.w,r.h
@@ -818,7 +828,6 @@ function detect(r) {
     });
   }
 
-  // Junta fragmentos próximos da mesma cor.
   centers.sort((a,b)=>b.area-a.area);
 
   const merged=[];
@@ -842,9 +851,6 @@ function detect(r) {
   return {counts,centers:merged};
 }
 
-// Organiza os círculos por coluna e linha.
-// Esta ordem é experimental e depende do
-// layout do histórico do Bac Bo.
 function extractHistory(result) {
   const circles=result.centers.slice();
 
@@ -899,7 +905,6 @@ function nameOf(v) {
          v==='T'?'TIE':'—';
 }
 
-// Identifica sequências consecutivas.
 function findStreak(arr) {
   const values=arr.filter(x=>x!=='T');
   if(!values.length) return {type:'',length:0};
@@ -915,7 +920,6 @@ function findStreak(arr) {
   return {type:last,length};
 }
 
-// Mede alternância consecutiva.
 function findAlternation(arr) {
   const values=arr.filter(x=>x!=='T');
   if(values.length<2) return 0;
@@ -930,7 +934,6 @@ function findAlternation(arr) {
   return n;
 }
 
-// Compara blocos consecutivos iguais.
 function findRepetition(arr) {
   const values=arr.filter(x=>x!=='T');
 
@@ -1002,7 +1005,7 @@ function updateAnalysis() {
     $('patternDescription').textContent=
       'São necessários pelo menos 10 resultados reconhecidos.';
     $('historicalLeader').textContent='—';
-    $('nextEntry').textContent='AGUARDAR';
+    $('nextEntry').textContent='AGUARDANDO';
     $('reason').textContent=
       'A leitura ainda não possui uma amostra mínima.';
     $('streak').textContent='—';
@@ -1064,17 +1067,41 @@ function updateAnalysis() {
   $('analysisStatus').textContent=
     'Padrões calculados';
 
-  // Não transforma frequências históricas
-  // em uma previsão de aposta.
-  $('nextEntry').textContent='AGUARDAR';
+  // NOVA INDICAÇÃO AUTOMÁTICA:
+  // Seleciona a categoria mais frequente nos
+  // últimos 20 resultados reconhecidos.
+  const opcoes = [
+    {nome:'🔵 AZUL', quantidade:c.P, cor:'blue'},
+    {nome:'🔴 VERMELHO', quantidade:c.B, cor:'red'},
+    {nome:'🟡 EMPATE', quantidade:c.T, cor:'gold'}
+  ];
+
+  opcoes.sort((a,b)=>b.quantidade-a.quantidade);
+
+  const maior=opcoes[0].quantidade;
+  const empatados=opcoes.filter(
+    item=>item.quantidade===maior
+  );
+
+  const next=$('nextEntry');
+
+  if(empatados.length>1) {
+    next.textContent='SEM PREFERÊNCIA';
+    next.className='gold';
+  } else {
+    next.textContent=opcoes[0].nome;
+    next.className=opcoes[0].cor;
+  }
 
   $('reason').textContent=
-    'O padrão mais evidente é: '+pattern+
-    '. Na amostra recente, Player apareceu '+
-    c.P+' vezes, Banker '+c.B+
-    ' vezes e Tie '+c.T+
-    ' vezes. Nenhum desses padrões comprova '+
-    'uma vantagem para a próxima rodada.';
+    'Padrão identificado: '+pattern+
+    '. Nos últimos '+recent.length+
+    ' resultados reconhecidos, Azul apareceu '+
+    c.P+' vezes, Vermelho '+c.B+
+    ' vezes e Empate '+c.T+
+    ' vezes. A indicação destaca apenas a '+
+    'categoria mais frequente. Isso não aumenta '+
+    'necessariamente sua chance na próxima rodada.';
 }
 
 $('last10').onclick=()=>{
@@ -1097,7 +1124,6 @@ $('allResults').onclick=()=>{
   updateStats();
 };
 
-// Assinatura do quadro reconhecido.
 function signature(result) {
   return result.centers
     .slice()
@@ -1147,7 +1173,6 @@ function readFrame() {
     stableFrames=1;
   }
 
-  // Aguarda três leituras semelhantes.
   if(stableFrames<3 || key===acceptedKey)
     return;
 
@@ -1168,10 +1193,6 @@ function readFrame() {
     const oldText=old.join('');
     const newText=current.join('');
 
-    // Somente registra uma nova rodada quando
-    // o histórico antigo é prefixo do novo.
-    // Reorganizações não são tratadas como
-    // novas rodadas confirmadas.
     if(
       current.length>old.length &&
       newText.startsWith(oldText) &&
