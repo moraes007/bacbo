@@ -387,5 +387,520 @@ video, #selectCanvas {
   </div>
 </section>
 </main>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const video = $("video");
+const canvas = $("selectCanvas");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+let stream = null;
+let frozenFrame = null;
+let regions = { left: null, right: null };
+let mode = null;
+let dragStart = null;
+let dragging = false;
+let timer = null;
+let previousSignature = null;
+let stableFrames = 0;
+let lastCounts = null;
+
+function log(message) {
+  const el = $("activityLog");
+  const time = new Date().toLocaleTimeString("pt-BR");
+  el.textContent = `[${time}] ${message}\n` + el.textContent;
+  el.textContent = el.textContent.slice(0, 5000);
+}
+
+// 1. COMPARTILHAR TELA
+
+async function startShare() {
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: 15 },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    await video.play();
+
+    $("stopBtn").disabled = false;
+    $("snapshotBtn").disabled = false;
+
+    $("screenStatus").textContent =
+      "Tela conectada. Capture um quadro para marcar os gráficos.";
+
+    $("liveBadge").textContent = "● TELA CONECTADA";
+    $("liveBadge").style.color = "var(--green)";
+
+    stream.getVideoTracks()[0].addEventListener("ended", stopShare);
+
+    log("Compartilhamento iniciado.");
+
+  } catch (error) {
+    $("screenStatus").textContent =
+      "Não foi possível compartilhar a tela.";
+
+    log("Captura cancelada ou não permitida.");
+  }
+}
+
+// 2. PARAR CAPTURA
+
+function stopShare() {
+  pauseMonitor();
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+
+  stream = null;
+  video.srcObject = null;
+
+  $("stopBtn").disabled = true;
+  $("snapshotBtn").disabled = true;
+
+  $("screenStatus").textContent = "Compartilhamento encerrado.";
+  $("liveBadge").textContent = "● PARADO";
+  $("liveBadge").style.color = "";
+
+  log("Compartilhamento encerrado.");
+}
+
+// 3. CAPTURAR QUADRO
+
+function captureFrame() {
+  if (!video.videoWidth) return;
+
+  pauseMonitor();
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  ctx.drawImage(video, 0, 0);
+
+  frozenFrame = ctx.getImageData(
+    0, 0, canvas.width, canvas.height
+  );
+
+  canvas.style.display = "block";
+  video.style.display = "none";
+
+  $("leftBtn").disabled = false;
+  $("rightBtn").disabled = false;
+
+  drawSelection();
+
+  $("screenStatus").textContent =
+    "Imagem capturada. Agora marque os dois gráficos.";
+
+  log("Quadro capturado.");
+}
+
+// 4. MARCAR REGIÕES
+
+function setMode(which) {
+  if (!frozenFrame) {
+    $("calStatus").textContent =
+      "Capture um quadro primeiro.";
+    return;
+  }
+
+  pauseMonitor();
+  mode = which;
+
+  $("calStatus").textContent =
+    which === "left"
+      ? "Arraste sobre o gráfico esquerdo."
+      : "Arraste sobre o gráfico direito.";
+}
+
+function getPosition(event) {
+  const rect = canvas.getBoundingClientRect();
+
+  return {
+    x: Math.max(0, Math.min(
+      canvas.width,
+      (event.clientX - rect.left) * canvas.width / rect.width
+    )),
+    y: Math.max(0, Math.min(
+      canvas.height,
+      (event.clientY - rect.top) * canvas.height / rect.height
+    ))
+  };
+}
+
+canvas.addEventListener("pointerdown", event => {
+  if (!mode) return;
+
+  dragging = true;
+  dragStart = getPosition(event);
+  canvas.setPointerCapture(event.pointerId);
+});
+
+canvas.addEventListener("pointermove", event => {
+  if (!dragging) return;
+
+  const p = getPosition(event);
+
+  drawSelection({
+    x: Math.min(p.x, dragStart.x),
+    y: Math.min(p.y, dragStart.y),
+    w: Math.abs(p.x - dragStart.x),
+    h: Math.abs(p.y - dragStart.y)
+  });
+});
+
+canvas.addEventListener("pointerup", event => {
+  if (!dragging) return;
+
+  dragging = false;
+
+  const p = getPosition(event);
+
+  const rect = {
+    x: Math.round(Math.min(p.x, dragStart.x)),
+    y: Math.round(Math.min(p.y, dragStart.y)),
+    w: Math.round(Math.abs(p.x - dragStart.x)),
+    h: Math.round(Math.abs(p.y - dragStart.y))
+  };
+
+  if (rect.w > 15 && rect.h > 15) {
+    regions[mode] = rect;
+    updateRegions();
+  }
+
+  mode = null;
+  drawSelection();
+});
+
+function drawSelection(temp = null) {
+  if (!frozenFrame) return;
+
+  ctx.putImageData(frozenFrame, 0, 0);
+
+  for (const key of ["left", "right"]) {
+    const r = regions[key];
+
+    if (r) {
+      ctx.strokeStyle =
+        key === "left" ? "#3988ff" : "#ef5350";
+
+      ctx.lineWidth = 4;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+    }
+  }
+
+  if (temp) {
+    ctx.strokeStyle = "#e2b64d";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(temp.x, temp.y, temp.w, temp.h);
+  }
+}
+
+function updateRegions() {
+  for (const key of ["left", "right"]) {
+    const r = regions[key];
+
+    $(key + "Info").textContent = r
+      ? `${r.w} × ${r.h} pixels`
+      : "Não marcado";
+  }
+
+  const ready = regions.left && regions.right;
+
+  $("monitorBtn").disabled = !ready || !stream;
+
+  $("calStatus").textContent = ready
+    ? "Os dois gráficos foram marcados!"
+    : "Marque o outro gráfico.";
+
+  drawSelection();
+
+  drawPreview(regions.left, "leftPreview");
+  drawPreview(regions.right, "rightPreview");
+}
+
+function drawPreview(rect, id) {
+  if (!rect) return;
+
+  const c = $(id);
+  c.width = rect.w;
+  c.height = rect.h;
+
+  c.getContext("2d").drawImage(
+    canvas,
+    rect.x, rect.y, rect.w, rect.h,
+    0, 0, rect.w, rect.h
+  );
+}
+
+// 5. RECONHECIMENTO APROXIMADO DE CORES
+
+function classifyColor(r, g, b) {
+  if (b > 105 && b > r * 1.20 && b > g * 1.03) {
+    return "P";
+  }
+
+  if (r > 125 && r > g * 1.28 && r > b * 1.15) {
+    return "B";
+  }
+
+  if (r > 125 && g > 85 &&
+      r > b * 1.35 && g > b * 1.20) {
+    return "T";
+  }
+
+  return null;
+}
+
+function analyzeColors(imageData) {
+  const data = imageData.data;
+
+  const result = {
+    P: 0,
+    B: 0,
+    T: 0
+  };
+
+  let total = 0;
+
+  // Amostragem de pixels para reduzir o processamento.
+  for (let i = 0; i < data.length; i += 16) {
+    const color = classifyColor(
+      data[i],
+      data[i + 1],
+      data[i + 2]
+    );
+
+    if (color) {
+      result[color]++;
+    }
+
+    total++;
+  }
+
+  result.totalPixels = total;
+
+  return result;
+}
+
+function getCrop(source, rect) {
+  const c = document.createElement("canvas");
+
+  c.width = rect.w;
+  c.height = rect.h;
+
+  const cctx = c.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  cctx.drawImage(
+    source,
+    rect.x, rect.y, rect.w, rect.h,
+    0, 0, rect.w, rect.h
+  );
+
+  return cctx.getImageData(
+    0, 0, rect.w, rect.h
+  );
+}
+
+// 6. IDENTIFICAR MUDANÇAS NA IMAGEM
+
+function getSignature(imageData) {
+  const data = imageData.data;
+
+  let hash = 2166136261;
+
+  for (let i = 0; i < data.length; i += 64) {
+    hash ^= data[i];
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+// 7. MONITORAMENTO AUTOMÁTICO
+
+function analyzeLive() {
+  if (!stream || !video.videoWidth) return;
+  if (!regions.left || !regions.right) return;
+
+  const source = document.createElement("canvas");
+
+  source.width = video.videoWidth;
+  source.height = video.videoHeight;
+
+  const sctx = source.getContext("2d", {
+    willReadFrequently: true
+  });
+
+  sctx.drawImage(video, 0, 0);
+
+  const leftData = getCrop(source, regions.left);
+  const rightData = getCrop(source, regions.right);
+
+  const left = analyzeColors(leftData);
+  const right = analyzeColors(rightData);
+
+  $("pCount").textContent = left.P;
+  $("bCount").textContent = left.B;
+  $("tCount").textContent = left.T;
+
+  $("leftStatus").textContent =
+    `Azul: ${left.P} | Amarelo: ${left.T} | Vermelho: ${left.B}`;
+
+  $("rightStatus").textContent =
+    `Azul: ${right.P} | Amarelo: ${right.T} | Vermelho: ${right.B}`;
+
+  const signature =
+    getSignature(leftData) ^
+    getSignature(rightData);
+
+  if (signature === previousSignature) {
+    stableFrames++;
+  } else {
+    stableFrames = 0;
+    previousSignature = signature;
+  }
+
+  const stability = Math.min(
+    100,
+    Math.round(stableFrames / 8 * 100)
+  );
+
+  $("stability").textContent = stability + "%";
+  $("stabilityBar").style.width = stability + "%";
+
+  $("updatedAt").textContent =
+    new Date().toLocaleTimeString("pt-BR");
+
+  const current = JSON.stringify({ left, right });
+
+  if (lastCounts !== current) {
+    log("Alteração visual detectada. Resultado ainda não confirmado.");
+    lastCounts = current;
+  }
+
+  $("interpretation").textContent =
+    "Monitor ativo. Alterações visuais não confirmam uma nova rodada.";
+
+  drawLivePreview(source, regions.left, "leftPreview");
+  drawLivePreview(source, regions.right, "rightPreview");
+}
+
+function drawLivePreview(source, rect, id) {
+  const c = $(id);
+
+  c.width = rect.w;
+  c.height = rect.h;
+
+  c.getContext("2d").drawImage(
+    source,
+    rect.x, rect.y, rect.w, rect.h,
+    0, 0, rect.w, rect.h
+  );
+}
+
+// 8. INICIAR MONITOR
+
+function startMonitor() {
+  if (!stream || !regions.left || !regions.right) return;
+
+  if (timer) clearInterval(timer);
+
+  $("monitorBtn").disabled = true;
+  $("pauseBtn").disabled = false;
+
+  $("liveBadge").textContent = "● MONITORANDO";
+  $("liveBadge").style.color = "var(--green)";
+
+  $("screenStatus").textContent =
+    "Monitoramento automático em funcionamento.";
+
+  canvas.style.display = "none";
+  video.style.display = "block";
+
+  timer = setInterval(analyzeLive, 1200);
+
+  analyzeLive();
+
+  log("Monitor automático iniciado.");
+}
+
+// 9. PAUSAR
+
+function pauseMonitor() {
+  if (timer) clearInterval(timer);
+
+  timer = null;
+
+  $("pauseBtn").disabled = true;
+  $("monitorBtn").disabled =
+    !(stream && regions.left && regions.right);
+
+  if (stream) {
+    $("liveBadge").textContent = "● PAUSADO";
+    $("liveBadge").style.color = "var(--gold)";
+
+    $("screenStatus").textContent =
+      "Monitor pausado. Compartilhamento continua ativo.";
+  }
+}
+
+// 10. LIMPAR MARCAÇÕES
+
+function resetRegions() {
+  pauseMonitor();
+
+  regions = {
+    left: null,
+    right: null
+  };
+
+  $("leftInfo").textContent = "Não marcado";
+  $("rightInfo").textContent = "Não marcado";
+
+  $("monitorBtn").disabled = true;
+
+  $("leftBtn").disabled = !frozenFrame;
+  $("rightBtn").disabled = !frozenFrame;
+
+  $("leftStatus").textContent = "Aguardando";
+  $("rightStatus").textContent = "Aguardando";
+
+  $("leftPreview").width = 1;
+  $("rightPreview").width = 1;
+
+  $("calStatus").textContent =
+    "Marcações apagadas.";
+
+  if (frozenFrame) drawSelection();
+
+  log("Marcações apagadas.");
+}
+
+// 11. CONECTAR BOTÕES
+
+$("startBtn").addEventListener("click", startShare);
+$("stopBtn").addEventListener("click", stopShare);
+$("snapshotBtn").addEventListener("click", captureFrame);
+
+$("leftBtn").addEventListener("click", () => {
+  setMode("left");
+});
+
+$("rightBtn").addEventListener("click", () => {
+  setMode("right");
+});
+
+$("monitorBtn").addEventListener("click", startMonitor);
+$("pauseBtn").addEventListener("click", pauseMonitor);
+$("resetBtn").addEventListener("click", resetRegions);
+
+</script>
 </body>
 </html>
