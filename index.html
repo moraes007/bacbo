@@ -1,67 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bac Bo Lab — Monitor de gráficos</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bac Bo Lab | Análise de Padrões</title>
 <style>
 :root {
   --bg:#090f20;
   --panel:#111c33;
   --line:#2b3b5b;
-  --text:#eaf2ff;
-  --muted:#9bb9e7;
+  --text:#edf3ff;
+  --muted:#9db6dc;
   --blue:#3984ff;
   --red:#ff5360;
-  --gold:#ffca47;
-  --green:#3acb98;
+  --gold:#ffc947;
+  --green:#37c994;
 }
 * { box-sizing:border-box }
 body {
   margin:0;
-  background:radial-gradient(ellipse at top,#172744,#0b1020 58%);
+  background:radial-gradient(ellipse at top,#172744,#090f20 60%);
   color:var(--text);
   font:15px Arial,sans-serif;
 }
-main { max-width:1160px;margin:auto;padding:24px 18px 60px }
+main { max-width:1160px;margin:auto;padding:24px 16px 60px }
 header {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:15px;
-  margin-bottom:20px;
   flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:22px;
 }
-h1 { margin:0;font-size:26px }
-h2 { font-size:19px;margin:0 0 14px }
+h1 { margin:0 0 7px;font-size:27px }
+h2 { margin:0 0 15px;font-size:19px }
+h3 { margin:0 0 10px;font-size:15px }
+p { line-height:1.5 }
 .muted,small { color:var(--muted) }
 .panel,.stat {
-  background:linear-gradient(160deg,#131e36,#10192e);
+  background:linear-gradient(160deg,#142039,#10192e);
   border:1px solid var(--line);
   border-radius:17px;
   padding:18px;
   margin-bottom:15px;
 }
-.buttons { display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 }
+.buttons {
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:14px 0;
+}
 button {
   border:1px solid #36527b;
   border-radius:10px;
   padding:11px 14px;
   background:#1b3157;
   color:white;
-  font-weight:700;
+  font-weight:bold;
   cursor:pointer;
 }
-button:hover { background:#234576 }
-button:disabled { opacity:.45;cursor:not-allowed }
+button:hover { background:#244576 }
 .primary { background:#16498d;border-color:#3777c7 }
 .danger { background:#5b2533 }
+button:disabled { opacity:.45;cursor:not-allowed }
 .videoBox {
   position:relative;
-  overflow:hidden;
   background:#050a14;
+  border:1px solid var(--line);
   border-radius:12px;
-  border:1px solid #293b58;
+  overflow:hidden;
   line-height:0;
 }
 video {
@@ -70,6 +77,7 @@ video {
   max-height:450px;
   object-fit:contain;
 }
+#frame { display:none;width:100%;height:auto }
 #overlay {
   position:absolute;
   inset:0;
@@ -78,47 +86,108 @@ video {
   touch-action:none;
   cursor:crosshair;
 }
-#frame { display:none;width:100%;height:auto }
-.stats {
+.two {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.three {
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 .stat { margin:0 }
-.stat strong { display:block;font-size:30px;margin-top:9px }
+.stat strong {
+  display:block;
+  font-size:30px;
+  margin:9px 0 5px;
+}
 .blue { color:var(--blue) }
 .red { color:var(--red) }
 .gold { color:var(--gold) }
 .green { color:var(--green) }
-.two { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+.info {
+  padding:12px;
+  background:#0b152a;
+  border:1px solid var(--line);
+  border-radius:10px;
+  margin-top:9px;
+  line-height:1.5;
+}
 .preview {
+  display:block;
   width:100%;
-  height:auto;
   max-height:170px;
   object-fit:contain;
   background:#080e1d;
-  border:1px solid #30425e;
-  border-radius:8px;
-}
-.info {
-  padding:10px;
-  background:#0b152a;
   border:1px solid var(--line);
-  border-radius:8px;
-  margin-top:9px;
+  border-radius:9px;
+  margin-top:10px;
 }
+.tag {
+  display:inline-block;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:6px 10px;
+  font-size:12px;
+  color:var(--muted);
+}
+.sequence {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:15px 0;
+}
+.ball {
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  font-size:11px;
+  font-weight:bold;
+  border:2px solid #ffffff44;
+}
+.ball.P { background:var(--blue) }
+.ball.B { background:var(--red) }
+.ball.T { background:var(--gold);color:#342400 }
+.bigResult {
+  text-align:center;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#0b152a;
+  margin:15px 0;
+}
+.bigResult strong {
+  display:block;
+  font-size:30px;
+  margin:12px 0;
+}
+.bigResult p { margin:6px 0 }
+.progress {
+  height:11px;
+  background:#25334c;
+  border-radius:20px;
+  overflow:hidden;
+  display:flex;
+  margin-top:10px;
+}
+.progress span { height:100% }
 #log {
-  max-height:220px;
+  max-height:230px;
   overflow:auto;
-  font:13px/1.7 monospace;
   white-space:pre-wrap;
+  font:13px/1.7 monospace;
 }
-.pill { font-size:12px;color:var(--muted) }
 @media(max-width:650px) {
   .two { grid-template-columns:1fr }
-  .stats { gap:7px }
-  .stat { padding:12px }
-  .stat strong { font-size:24px }
+  .three { gap:6px }
+  .stat { padding:11px }
+  .stat strong { font-size:23px }
+  .bigResult strong { font-size:24px }
 }
 </style>
 </head>
@@ -129,23 +198,23 @@ video {
   <div>
     <h1>🎯 Bac Bo Lab</h1>
     <div class="muted">
-      Leitura visual dos dois gráficos • análise experimental
+      Monitoramento automático e análise experimental de padrões
     </div>
   </div>
-  <span id="status" class="green">Aguardando captura</span>
+  <span id="status" class="tag">Aguardando captura</span>
 </header>
 
 <section class="panel">
   <h2>📺 Captura da tela</h2>
   <p class="muted">
-    Compartilhe a janela com o Bac Bo. Selecione cada gráfico
-    diretamente sobre a imagem. O processamento ocorre neste navegador.
+    Compartilhe a janela do Bac Bo para acompanhar os gráficos.
+    A análise é feita localmente no navegador.
   </p>
   <div class="buttons">
     <button class="primary" id="startBtn">Compartilhar tela</button>
     <button id="stopBtn">Parar captura</button>
-    <button id="snapshotBtn">Congelar imagem para marcar</button>
-    <button id="liveBtn">Voltar à imagem ao vivo</button>
+    <button id="snapshotBtn">Congelar imagem</button>
+    <button id="liveBtn">Voltar ao vivo</button>
   </div>
   <div class="videoBox" id="videoBox">
     <video id="video" autoplay muted playsinline></video>
@@ -153,16 +222,15 @@ video {
     <canvas id="overlay"></canvas>
   </div>
   <p class="muted" id="captureInfo">
-    Aguardando permissão de compartilhamento.
+    Aguardando compartilhamento.
   </p>
 </section>
 
 <section class="panel">
   <h2>🎯 Marcar os dois gráficos</h2>
   <p class="muted">
-    Marque somente a área branca com as bolinhas, sem incluir
-    o placar central. Primeiro o histórico à esquerda;
-    depois a estrada à direita.
+    Selecione a área branca do histórico esquerdo e depois
+    a estrada do lado direito. Não inclua o placar central.
   </p>
   <div class="buttons">
     <button class="primary" id="leftBtn">
@@ -170,21 +238,23 @@ video {
     </button>
     <button id="rightBtn">2 — Marcar gráfico direito</button>
     <button class="primary" id="monitorBtn">▶ Iniciar monitor</button>
-    <button id="pauseBtn">Ⅱ Pausar análise</button>
+    <button id="pauseBtn">Ⅱ Pausar</button>
     <button class="danger" id="resetBtn">Limpar marcações</button>
   </div>
-  <div id="selectionInfo" class="muted">Nenhuma área marcada.</div>
+  <p id="selectionInfo" class="muted">
+    Nenhuma área marcada.
+  </p>
   <div class="two">
     <div>
       <div class="info" id="leftInfo">
-        Gráfico esquerdo: não marcado
+        Histórico esquerdo: não marcado
       </div>
       <canvas class="preview" id="leftPreview"
         width="380" height="130"></canvas>
     </div>
     <div>
       <div class="info" id="rightInfo">
-        Gráfico direito: não marcado
+        Estrada direita: não marcada
       </div>
       <canvas class="preview" id="rightPreview"
         width="380" height="130"></canvas>
@@ -192,59 +262,160 @@ video {
   </div>
 </section>
 
-<section class="stats">
+<section class="three">
   <div class="stat">
-    <span class="muted">🔵 PLAYER</span>
+    <small>🔵 PLAYER</small>
     <strong class="blue" id="playerCount">—</strong>
-    <small>Bolinhas azuis reconhecidas</small>
+    <small>Bolinhas detectadas</small>
   </div>
   <div class="stat">
-    <span class="muted">🟡 TIE</span>
+    <small>🟡 TIE</small>
     <strong class="gold" id="tieCount">—</strong>
-    <small>Marcações amarelas reconhecidas</small>
+    <small>Bolinhas detectadas</small>
   </div>
   <div class="stat">
-    <span class="muted">🔴 BANKER</span>
+    <small>🔴 BANKER</small>
     <strong class="red" id="bankerCount">—</strong>
-    <small>Bolinhas vermelhas reconhecidas</small>
+    <small>Bolinhas detectadas</small>
   </div>
 </section>
 
 <section class="panel">
-  <h2>📊 Estado do monitor</h2>
+  <h2>🎯 Análise da próxima rodada</h2>
+  <span class="tag" id="analysisStatus">
+    Aguardando dados
+  </span>
+
+  <h3 style="margin-top:20px">
+    Últimos resultados reconhecidos
+  </h3>
+  <div class="sequence" id="sequence">
+    <span class="muted">Nenhum resultado ainda.</span>
+  </div>
+
+  <div class="bigResult">
+    <small>PADRÃO EM DESTAQUE</small>
+    <strong id="patternName">AGUARDANDO</strong>
+    <p class="muted" id="patternDescription">
+      Inicie o monitoramento para analisar os gráficos.
+    </p>
+  </div>
+
   <div class="two">
-    <div class="info" id="leftState">
-      Histórico: aguardando leitura
+    <div class="info">
+      <small>Predominância histórica</small>
+      <h2 id="historicalLeader" style="margin-top:9px">
+        —
+      </h2>
     </div>
-    <div class="info" id="rightState">
-      Estrada: aguardando leitura
+    <div class="info">
+      <small>Próxima entrada</small>
+      <h2 id="nextEntry" class="gold" style="margin-top:9px">
+        AGUARDAR
+      </h2>
     </div>
   </div>
-  <div class="info" id="updateState">Última atualização: —</div>
-  <div class="info" id="roundState">
-    Novas rodadas confirmadas: 0 (experimental)
+
+  <div class="info">
+    <small>Interpretação do padrão</small>
+    <p id="reason">
+      Ainda não há dados suficientes.
+    </p>
   </div>
+
   <p class="muted">
-    O gráfico da direita é uma visualização derivada, não uma
-    segunda fonte de rodadas. Empates sobrepostos ou bolinhas
-    muito pequenas podem exigir calibração adicional.
+    Padrões históricos não comprovam vantagem para apostas.
+    O painel não fornece probabilidades de acerto garantidas.
   </p>
 </section>
 
 <section class="panel">
-  <h2>📝 Registro de mudanças</h2>
+  <h2>📊 Estatísticas recentes</h2>
   <div class="buttons">
-    <button id="clearLogBtn">Limpar registro</button>
+    <button id="last10">Últimos 10</button>
+    <button id="last20">Últimos 20</button>
+    <button id="last50">Últimos 50</button>
+    <button id="allResults">Todos</button>
   </div>
-  <div id="log">Pronto para iniciar.</div>
+
+  <div class="three">
+    <div class="stat">
+      <small>PLAYER</small>
+      <strong class="blue" id="statP">—</strong>
+    </div>
+    <div class="stat">
+      <small>TIE</small>
+      <strong class="gold" id="statT">—</strong>
+    </div>
+    <div class="stat">
+      <small>BANKER</small>
+      <strong class="red" id="statB">—</strong>
+    </div>
+  </div>
+
+  <div class="progress">
+    <span id="barP" style="background:#3984ff;width:0%"></span>
+    <span id="barT" style="background:#ffc947;width:0%"></span>
+    <span id="barB" style="background:#ff5360;width:0%"></span>
+  </div>
+  <p class="muted" id="sampleInfo">
+    Aguardando resultados.
+  </p>
+</section>
+
+<section class="panel">
+  <h2>🔍 Padrões encontrados</h2>
+  <div class="two">
+    <div class="info">
+      <small>Sequência atual</small>
+      <h2 id="streak">—</h2>
+    </div>
+    <div class="info">
+      <small>Alternância recente</small>
+      <h2 id="alternation">—</h2>
+    </div>
+    <div class="info">
+      <small>Padrões repetidos</small>
+      <h2 id="repetition">—</h2>
+    </div>
+    <div class="info">
+      <small>Estado da leitura</small>
+      <h2 id="readingState">Aguardando</h2>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>📡 Estado dos gráficos</h2>
+  <div class="two">
+    <div class="info" id="leftState">
+      Histórico: aguardando
+    </div>
+    <div class="info" id="rightState">
+      Estrada: aguardando
+    </div>
+  </div>
+  <div class="info" id="updateState">
+    Última atualização: —
+  </div>
+  <div class="info" id="roundState">
+    Novas rodadas detectadas: 0
+  </div>
+</section>
+
+<section class="panel">
+  <h2>📝 Registro de monitoramento</h2>
+  <button id="clearLogBtn">Limpar registro</button>
+  <div class="info" id="log">Pronto para iniciar.</div>
 </section>
 
 <section class="panel">
   <small>
-    Ferramenta de reconhecimento visual experimental.
-    Não prevê resultados nem oferece sinais confiáveis de apostas.
-    Os totais podem divergir do histórico real se houver animações,
-    mudança de escala ou sobreposição.
+    Bac Bo Lab — ferramenta experimental de leitura visual.
+    O reconhecimento pode apresentar erros, principalmente em
+    empates sobrepostos, mudanças de escala e animações.
+    Os resultados são independentes; padrões anteriores não
+    permitem prever com segurança a próxima rodada.
   </small>
 </section>
 
@@ -259,103 +430,40 @@ const frame = $('frame');
 const overlay = $('overlay');
 const ctx = overlay.getContext('2d');
 
+const sample = document.createElement('canvas');
+const sc = sample.getContext('2d', {
+  willReadFrequently:true
+});
+
 let stream = null;
 let mode = null;
 let regions = {left:null,right:null};
 let drag = null;
-let monitorTimer = null;
+let timer = null;
+let windowSize = 20;
+
+let history = [];
 let stableKey = '';
 let stableFrames = 0;
-let baseline = null;
-let confirmed = 0;
-let lastLoggedKey = '';
+let acceptedKey = '';
+let previousHistory = null;
+let newRounds = 0;
 
-const sample = document.createElement('canvas');
-const sc = sample.getContext('2d',{willReadFrequently:true});
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-
-function log(s) {
-  const el = $('log');
-  el.textContent =
-    '[' + new Date().toLocaleTimeString('pt-BR') + '] ' +
-    s + '\n' + el.textContent.slice(0,9000);
+function log(message) {
+  $('log').textContent =
+    '['+new Date().toLocaleTimeString('pt-BR')+'] '+
+    message+'\n'+$('log').textContent.slice(0,8000);
 }
 
-function status(s) {
-  $('status').textContent = s;
+function setStatus(message) {
+  $('status').textContent = message;
 }
 
-function size() {
+function dimensions() {
   return {
     w:video.videoWidth || frame.width,
     h:video.videoHeight || frame.height
   };
-}
-
-function syncOverlay() {
-  const r = video.getBoundingClientRect();
-  const isFrozen = frame.style.display === 'block';
-  const target = isFrozen ? frame : video;
-  const b = target.getBoundingClientRect();
-
-  overlay.width = Math.max(
-    1,Math.round(b.width*devicePixelRatio)
-  );
-  overlay.height = Math.max(
-    1,Math.round(b.height*devicePixelRatio)
-  );
-
-  overlay.style.left =
-    (b.left-$('videoBox').getBoundingClientRect().left)+'px';
-  overlay.style.top =
-    (b.top-$('videoBox').getBoundingClientRect().top)+'px';
-  overlay.style.width = b.width+'px';
-  overlay.style.height = b.height+'px';
-
-  drawOverlay();
-}
-
-function drawOverlay() {
-  ctx.clearRect(0,0,overlay.width,overlay.height);
-  const {w,h} = size();
-  if(!w || !h) return;
-
-  for(const [name,rect] of Object.entries(regions)) {
-    if(rect) {
-      outline(
-        rect,
-        name==='left'?'#3984ff':'#ffca47',
-        name
-      );
-    }
-  }
-
-  if(drag) {
-    outline(
-      rectFrom(drag.a,drag.b),
-      mode==='left'?'#3984ff':'#ffca47',
-      'seleção'
-    );
-  }
-}
-
-function outline(rect,color,label) {
-  const {w,h} = size();
-  const sx = overlay.width/w;
-  const sy = overlay.height/h;
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(
-    rect.x*sx,rect.y*sy,rect.w*sx,rect.h*sy
-  );
-  ctx.fillStyle = color;
-  ctx.font = 'bold 14px Arial';
-  ctx.fillText(
-    label,
-    rect.x*sx+5,
-    Math.max(15,rect.y*sy-6)
-  );
 }
 
 function rectFrom(a,b) {
@@ -368,79 +476,129 @@ function rectFrom(a,b) {
 }
 
 function point(e) {
-  const b = overlay.getBoundingClientRect();
-  const {w,h} = size();
+  const b=overlay.getBoundingClientRect();
+  const s=dimensions();
 
   return {
-    x:Math.max(
-      0,Math.min(w,((e.clientX-b.left)/b.width)*w)
-    ),
-    y:Math.max(
-      0,Math.min(h,((e.clientY-b.top)/b.height)*h)
-    )
+    x:Math.max(0,Math.min(s.w,
+      (e.clientX-b.left)/b.width*s.w)),
+    y:Math.max(0,Math.min(s.h,
+      (e.clientY-b.top)/b.height*s.h))
   };
+}
+
+function syncOverlay() {
+  const target =
+    frame.style.display==='block' ? frame : video;
+  const b=target.getBoundingClientRect();
+  const parent=$('videoBox').getBoundingClientRect();
+
+  overlay.width=Math.max(1,
+    Math.round(b.width*devicePixelRatio));
+  overlay.height=Math.max(1,
+    Math.round(b.height*devicePixelRatio));
+
+  overlay.style.left=(b.left-parent.left)+'px';
+  overlay.style.top=(b.top-parent.top)+'px';
+  overlay.style.width=b.width+'px';
+  overlay.style.height=b.height+'px';
+
+  drawOverlay();
+}
+
+function outline(r,color,label) {
+  const s=dimensions();
+  if(!s.w || !s.h) return;
+
+  const sx=overlay.width/s.w;
+  const sy=overlay.height/s.h;
+
+  ctx.strokeStyle=color;
+  ctx.lineWidth=3;
+  ctx.strokeRect(r.x*sx,r.y*sy,r.w*sx,r.h*sy);
+
+  ctx.fillStyle=color;
+  ctx.font='bold 14px Arial';
+  ctx.fillText(label,r.x*sx+5,
+    Math.max(15,r.y*sy-6));
+}
+
+function drawOverlay() {
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+
+  if(regions.left)
+    outline(regions.left,'#3984ff','esquerdo');
+
+  if(regions.right)
+    outline(regions.right,'#ffc947','direito');
+
+  if(drag)
+    outline(rectFrom(drag.a,drag.b),
+      mode==='left'?'#3984ff':'#ffc947',
+      'seleção');
 }
 
 overlay.addEventListener('pointerdown',e=>{
   if(!mode) return;
   overlay.setPointerCapture(e.pointerId);
-  drag = {a:point(e),b:point(e)};
+  drag={a:point(e),b:point(e)};
   drawOverlay();
 });
 
 overlay.addEventListener('pointermove',e=>{
   if(!drag) return;
-  drag.b = point(e);
+  drag.b=point(e);
   drawOverlay();
 });
 
 overlay.addEventListener('pointerup',e=>{
   if(!drag) return;
-  drag.b = point(e);
-  const r = rectFrom(drag.a,drag.b);
+
+  drag.b=point(e);
+  const r=rectFrom(drag.a,drag.b);
 
   if(r.w>=25 && r.h>=20) {
-    regions[mode] = r;
-    $(mode+'Info').textContent =
-      (mode==='left'
-        ?'Gráfico esquerdo: '
-        :'Gráfico direito: ')+
+    regions[mode]=r;
+
+    $(mode+'Info').textContent=
+      (mode==='left'?'Histórico: ':'Estrada: ')+
       r.w+' × '+r.h+' pixels';
-    log('Região '+mode+' marcada');
+
+    log('Gráfico '+mode+' selecionado.');
   }
 
-  drag = null;
-  mode = null;
+  mode=null;
+  drag=null;
 
-  $('selectionInfo').textContent =
+  $('selectionInfo').textContent=
     regions.left && regions.right
       ?'Os dois gráficos foram marcados!'
-      :'Marque as duas regiões.';
+      :'Marque os dois gráficos.';
 
   drawOverlay();
 });
 
 $('leftBtn').onclick=()=>{
   mode='left';
-  status('Arraste para marcar o gráfico esquerdo');
+  setStatus('Marque o gráfico esquerdo');
 };
 
 $('rightBtn').onclick=()=>{
   mode='right';
-  status('Arraste para marcar o gráfico direito');
+  setStatus('Marque o gráfico direito');
 };
 
 $('startBtn').onclick=async()=>{
   try {
     stopCapture();
-    stream = await navigator.mediaDevices.getDisplayMedia({
+
+    stream=await navigator.mediaDevices.getDisplayMedia({
       video:{frameRate:10},
       audio:false
     });
 
-    video.srcObject = stream;
+    video.srcObject=stream;
     await video.play();
-    video.onloadedmetadata = syncOverlay;
 
     stream.getVideoTracks()[0].addEventListener(
       'ended',stopCapture
@@ -449,34 +607,44 @@ $('startBtn').onclick=async()=>{
     frame.style.display='none';
     video.style.display='block';
 
-    $('captureInfo').textContent =
-      'Tela compartilhada. Você pode congelar a imagem '+
-      'para marcar as regiões.';
+    $('captureInfo').textContent=
+      'Captura ativa. Marque os gráficos.';
 
-    status('Captura ativa');
+    setStatus('Captura ativa');
     setTimeout(syncOverlay,300);
-    log('Captura iniciada');
+    log('Compartilhamento iniciado.');
   } catch(e) {
-    status('Permissão negada ou captura indisponível');
-    log('Falha na captura: '+e.message);
+    setStatus('Não foi possível capturar');
+    log('Erro: '+e.message);
   }
 };
 
+function pause() {
+  if(timer!==null) {
+    clearInterval(timer);
+    timer=null;
+    log('Monitor pausado.');
+  }
+}
+
 function stopCapture() {
   pause();
+
   if(stream) {
     stream.getTracks().forEach(t=>t.stop());
     stream=null;
   }
+
   video.srcObject=null;
-  status('Captura parada');
+  setStatus('Captura parada');
 }
 
 $('stopBtn').onclick=stopCapture;
 
 $('snapshotBtn').onclick=()=>{
   if(!video.videoWidth) {
-    return log('Compartilhe uma tela primeiro');
+    log('Compartilhe a tela primeiro.');
+    return;
   }
 
   frame.width=video.videoWidth;
@@ -485,36 +653,35 @@ $('snapshotBtn').onclick=()=>{
 
   frame.style.display='block';
   video.style.display='none';
+
   syncOverlay();
-  log('Imagem congelada para seleção');
+  log('Imagem congelada.');
 };
 
 $('liveBtn').onclick=()=>{
   frame.style.display='none';
   video.style.display='block';
   syncOverlay();
-  log('Visualização ao vivo');
 };
 
 $('resetBtn').onclick=()=>{
   pause();
   regions={left:null,right:null};
-  baseline=null;
-  confirmed=0;
+  history=[];
+  previousHistory=null;
   stableKey='';
+  acceptedKey='';
   stableFrames=0;
+  newRounds=0;
 
-  $('roundState').textContent =
-    'Novas rodadas confirmadas: 0 (experimental)';
-  $('leftInfo').textContent =
-    'Gráfico esquerdo: não marcado';
-  $('rightInfo').textContent =
-    'Gráfico direito: não marcado';
-  $('selectionInfo').textContent =
-    'Nenhuma área marcada.';
+  $('leftInfo').textContent='Histórico: não marcado';
+  $('rightInfo').textContent='Estrada: não marcada';
+  $('selectionInfo').textContent='Nenhuma área marcada.';
+  $('roundState').textContent='Novas rodadas detectadas: 0';
 
+  updateAnalysis();
   drawOverlay();
-  log('Marcações apagadas');
+  log('Monitor e marcações reiniciados.');
 };
 
 $('clearLogBtn').onclick=()=>{
@@ -523,63 +690,70 @@ $('clearLogBtn').onclick=()=>{
 
 window.addEventListener('resize',syncOverlay);
 
+// Captura o quadro atual.
 function capture() {
-  if(!video.videoWidth || !video.videoHeight) {
+  if(!video.videoWidth || !video.videoHeight)
     return false;
-  }
+
   sample.width=video.videoWidth;
   sample.height=video.videoHeight;
   sc.drawImage(video,0,0);
+
   return true;
 }
 
-function crop(r,preview) {
-  const c=$(preview);
-  const g=c.getContext('2d');
-
+function crop(r,id) {
+  const c=$(id);
   c.width=r.w;
   c.height=r.h;
 
-  g.drawImage(
-    sample,r.x,r.y,r.w,r.h,
-    0,0,r.w,r.h
+  c.getContext('2d').drawImage(
+    sample,r.x,r.y,r.w,r.h,0,0,r.w,r.h
   );
 }
 
-// Classificação HSV: centros coloridos de círculos,
-// excluindo quase branco e tons escuros.
+// Classificação básica de cores.
 function classify(R,G,B) {
   const max=Math.max(R,G,B);
   const min=Math.min(R,G,B);
   const d=max-min;
 
-  if(max<85 || d<38 || d/max<.32) return 0;
+  if(max<85 || d<38 || d/max<.32)
+    return 0;
 
   let h;
+
   if(max===R) h=((G-B)/d+6)%6;
   else if(max===G) h=(B-R)/d+2;
   else h=(R-G)/d+4;
 
   h*=60;
 
-  if(h>=195 && h<=255 && B>R*1.18) return 1;
-  if((h<=15 || h>=348) && R>G*1.3) return 2;
-  if(h>=30 && h<=62 && R>115 && G>75) return 3;
+  if(h>=195 && h<=255 && B>R*1.18)
+    return 1;
+
+  if((h<=15 || h>=348) && R>G*1.3)
+    return 2;
+
+  if(h>=30 && h<=62 && R>115 && G>75)
+    return 3;
 
   return 0;
 }
 
-// Detecta componentes coloridos e aplica limites
-// de tamanho, densidade e proporção.
+// Localiza componentes coloridos.
 function detect(r) {
-  const data=sc.getImageData(r.x,r.y,r.w,r.h).data;
+  const data=sc.getImageData(
+    r.x,r.y,r.w,r.h
+  ).data;
+
   const w=r.w;
   const h=r.h;
   const N=w*h;
 
   const labels=new Uint8Array(N);
   const seen=new Uint8Array(N);
-  const counts=[0,0,0,0];
+  const queue=new Int32Array(N);
   const centers=[];
 
   for(let i=0;i<N;i++) {
@@ -590,14 +764,11 @@ function detect(r) {
     );
   }
 
-  const queue=new Int32Array(N);
-
   for(let i=0;i<N;i++) {
-    let color=labels[i];
+    const color=labels[i];
     if(!color || seen[i]) continue;
 
-    let head=0;
-    let tail=0;
+    let head=0,tail=0;
     let minX=w,maxX=0,minY=h,maxY=0;
 
     queue[tail++]=i;
@@ -614,11 +785,12 @@ function detect(r) {
       maxY=Math.max(maxY,y);
 
       for(const n of [v-1,v+1,v-w,v+w]) {
-        if(n<0 || n>=N || seen[n] ||
-           labels[n]!==color) continue;
+        if(n<0 || n>=N ||
+           seen[n] || labels[n]!==color)
+          continue;
 
-        const nx=n%w;
-        if(Math.abs(nx-x)>1) continue;
+        if(Math.abs(n%w-x)>1)
+          continue;
 
         seen[n]=1;
         queue[tail++]=n;
@@ -630,17 +802,13 @@ function detect(r) {
     const ratio=bw/bh;
     const area=bw*bh;
 
-    if(
-      tail<5 ||
-      area<12 ||
-      bw<3 ||
-      bh<3 ||
-      ratio<.45 ||
-      ratio>2.2 ||
-      bw>Math.min(32,w*.13) ||
-      bh>Math.min(32,h*.35) ||
-      tail/area<.18
-    ) continue;
+    if(tail<5 || area<12 ||
+       bw<3 || bh<3 ||
+       ratio<.45 || ratio>2.2 ||
+       bw>Math.min(32,w*.13) ||
+       bh>Math.min(32,h*.35) ||
+       tail/area<.18)
+      continue;
 
     centers.push({
       x:(minX+maxX)/2,
@@ -650,39 +818,301 @@ function detect(r) {
     });
   }
 
-  // Une fragmentos de um mesmo círculo.
+  // Junta fragmentos próximos da mesma cor.
   centers.sort((a,b)=>b.area-a.area);
+
   const merged=[];
 
   for(const c of centers) {
-    const near=merged.find(p=>
+    const near=merged.some(p=>
       p.color===c.color &&
       Math.hypot(p.x-c.x,p.y-c.y)<
-      Math.max(5,Math.min(12,Math.sqrt(p.area)*1.6))
+      Math.max(5,Math.min(12,
+        Math.sqrt(p.area)*1.6))
     );
 
-    if(near) continue;
-    merged.push(c);
-    counts[c.color]++;
+    if(!near) merged.push(c);
   }
+
+  const counts=[0,0,0,0];
+
+  for(const c of merged)
+    counts[c.color]++;
 
   return {counts,centers:merged};
 }
 
-function signature(result) {
-  const c=result.centers.slice().sort(
-    (a,b)=>a.y-b.y || a.x-b.x
-  );
+// Organiza os círculos por coluna e linha.
+// Esta ordem é experimental e depende do
+// layout do histórico do Bac Bo.
+function extractHistory(result) {
+  const circles=result.centers.slice();
 
-  return c.map(p=>
-    p.color+':'+
-    Math.round(p.x/5)+':'+
-    Math.round(p.y/5)
-  ).join('|');
+  if(!circles.length) return [];
+
+  circles.sort((a,b)=>a.x-b.x);
+
+  const columns=[];
+
+  for(const c of circles) {
+    let col=columns.find(group=>
+      Math.abs(group.x-c.x)<6
+    );
+
+    if(!col) {
+      col={x:c.x,items:[]};
+      columns.push(col);
+    }
+
+    col.items.push(c);
+  }
+
+  columns.sort((a,b)=>a.x-b.x);
+
+  const sequence=[];
+
+  for(const col of columns) {
+    col.items.sort((a,b)=>a.y-b.y);
+
+    for(const c of col.items) {
+      sequence.push(
+        c.color===1?'P':
+        c.color===2?'B':'T'
+      );
+    }
+  }
+
+  return sequence;
 }
 
-function tick() {
-  if(!regions.left || !regions.right || !capture()) return;
+function countsOf(arr) {
+  return {
+    P:arr.filter(x=>x==='P').length,
+    B:arr.filter(x=>x==='B').length,
+    T:arr.filter(x=>x==='T').length
+  };
+}
+
+function nameOf(v) {
+  return v==='P'?'PLAYER':
+         v==='B'?'BANKER':
+         v==='T'?'TIE':'—';
+}
+
+// Identifica sequências consecutivas.
+function findStreak(arr) {
+  const values=arr.filter(x=>x!=='T');
+  if(!values.length) return {type:'',length:0};
+
+  const last=values[values.length-1];
+  let length=0;
+
+  for(let i=values.length-1;i>=0;i--) {
+    if(values[i]!==last) break;
+    length++;
+  }
+
+  return {type:last,length};
+}
+
+// Mede alternância consecutiva.
+function findAlternation(arr) {
+  const values=arr.filter(x=>x!=='T');
+  if(values.length<2) return 0;
+
+  let n=1;
+
+  for(let i=values.length-1;i>0;i--) {
+    if(values[i]===values[i-1]) break;
+    n++;
+  }
+
+  return n;
+}
+
+// Compara blocos consecutivos iguais.
+function findRepetition(arr) {
+  const values=arr.filter(x=>x!=='T');
+
+  for(let size=2;size<=5;size++) {
+    if(values.length<size*2) continue;
+
+    const a=values.slice(-size).join('');
+    const b=values.slice(-size*2,-size).join('');
+
+    if(a===b) return a;
+  }
+
+  return '';
+}
+
+function displaySequence(arr) {
+  const el=$('sequence');
+  el.innerHTML='';
+
+  if(!arr.length) {
+    el.textContent='Aguardando resultados.';
+    return;
+  }
+
+  for(const v of arr.slice(-20)) {
+    const ball=document.createElement('span');
+    ball.className='ball '+v;
+    ball.textContent=v;
+    ball.title=nameOf(v);
+    el.appendChild(ball);
+  }
+}
+
+function updateStats() {
+  const arr=windowSize===0
+    ?history
+    :history.slice(-windowSize);
+
+  const c=countsOf(arr);
+  const total=arr.length;
+
+  $('statP').textContent=c.P;
+  $('statB').textContent=c.B;
+  $('statT').textContent=c.T;
+
+  $('barP').style.width=
+    (total?c.P/total*100:0)+'%';
+
+  $('barB').style.width=
+    (total?c.B/total*100:0)+'%';
+
+  $('barT').style.width=
+    (total?c.T/total*100:0)+'%';
+
+  $('sampleInfo').textContent=
+    total+' resultados detectados na amostra. '+
+    'Player: '+(total?(c.P/total*100).toFixed(1):0)+'% | '+
+    'Banker: '+(total?(c.B/total*100).toFixed(1):0)+'% | '+
+    'Tie: '+(total?(c.T/total*100).toFixed(1):0)+'%.';
+}
+
+function updateAnalysis() {
+  displaySequence(history);
+  updateStats();
+
+  if(history.length<10) {
+    $('analysisStatus').textContent='Dados insuficientes';
+    $('patternName').textContent='AGUARDANDO';
+    $('patternDescription').textContent=
+      'São necessários pelo menos 10 resultados reconhecidos.';
+    $('historicalLeader').textContent='—';
+    $('nextEntry').textContent='AGUARDAR';
+    $('reason').textContent=
+      'A leitura ainda não possui uma amostra mínima.';
+    $('streak').textContent='—';
+    $('alternation').textContent='—';
+    $('repetition').textContent='—';
+    $('readingState').textContent='Aguardando';
+    return;
+  }
+
+  const recent=history.slice(-20);
+  const c=countsOf(recent);
+
+  const streak=findStreak(history);
+  const alt=findAlternation(history);
+  const repeat=findRepetition(history);
+
+  $('streak').textContent=
+    streak.length+' × '+nameOf(streak.type);
+
+  $('alternation').textContent=
+    alt+' resultados';
+
+  $('repetition').textContent=
+    repeat || 'Não identificado';
+
+  $('readingState').textContent=
+    'Leitura experimental';
+
+  let pattern='SEM PADRÃO DOMINANTE';
+  let description='Resultados recentes mistos.';
+
+  if(streak.length>=4) {
+    pattern='SEQUÊNCIA DE '+nameOf(streak.type);
+    description=
+      streak.length+' resultados consecutivos '+
+      'da mesma categoria, ignorando empates.';
+  } else if(alt>=5) {
+    pattern='ALTERNÂNCIA';
+    description=
+      'Player e Banker alternaram nos últimos '+
+      alt+' resultados sem empate.';
+  } else if(repeat) {
+    pattern='REPETIÇÃO DE BLOCO';
+    description=
+      'Bloco repetido: '+repeat+
+      '. Isso descreve o passado, não o próximo jogo.';
+  }
+
+  $('patternName').textContent=pattern;
+  $('patternDescription').textContent=description;
+
+  const leader=
+    c.P>c.B?'P':
+    c.B>c.P?'B':'';
+
+  $('historicalLeader').textContent=
+    leader?nameOf(leader):'EMPATE NA FREQUÊNCIA';
+
+  $('analysisStatus').textContent=
+    'Padrões calculados';
+
+  // Não transforma frequências históricas
+  // em uma previsão de aposta.
+  $('nextEntry').textContent='AGUARDAR';
+
+  $('reason').textContent=
+    'O padrão mais evidente é: '+pattern+
+    '. Na amostra recente, Player apareceu '+
+    c.P+' vezes, Banker '+c.B+
+    ' vezes e Tie '+c.T+
+    ' vezes. Nenhum desses padrões comprova '+
+    'uma vantagem para a próxima rodada.';
+}
+
+$('last10').onclick=()=>{
+  windowSize=10;
+  updateStats();
+};
+
+$('last20').onclick=()=>{
+  windowSize=20;
+  updateStats();
+};
+
+$('last50').onclick=()=>{
+  windowSize=50;
+  updateStats();
+};
+
+$('allResults').onclick=()=>{
+  windowSize=0;
+  updateStats();
+};
+
+// Assinatura do quadro reconhecido.
+function signature(result) {
+  return result.centers
+    .slice()
+    .sort((a,b)=>a.x-b.x || a.y-b.y)
+    .map(p=>
+      p.color+':'+
+      Math.round(p.x/4)+':'+
+      Math.round(p.y/4)
+    ).join('|');
+}
+
+function readFrame() {
+  if(!regions.left ||
+     !regions.right ||
+     !capture()) return;
 
   const left=detect(regions.left);
   const right=detect(regions.right);
@@ -695,12 +1125,12 @@ function tick() {
   $('tieCount').textContent=left.counts[3];
 
   $('leftState').textContent=
-    'Histórico esquerdo: azul '+left.counts[1]+
+    'Histórico: azul '+left.counts[1]+
     ' | amarelo '+left.counts[3]+
     ' | vermelho '+left.counts[2];
 
   $('rightState').textContent=
-    'Estrada direita (referência): azul '+right.counts[1]+
+    'Estrada: azul '+right.counts[1]+
     ' | amarelo '+right.counts[3]+
     ' | vermelho '+right.counts[2];
 
@@ -717,68 +1147,88 @@ function tick() {
     stableFrames=1;
   }
 
-  if(stableFrames>=3 && key!==lastLoggedKey) {
-    lastLoggedKey=key;
+  // Aguarda três leituras semelhantes.
+  if(stableFrames<3 || key===acceptedKey)
+    return;
 
-    const total=
-      left.counts[1]+left.counts[2]+left.counts[3];
+  acceptedKey=key;
 
-    if(baseline===null) {
-      baseline=total;
-      log('Leitura inicial estabilizada: '+
-          total+' marcações aproximadas');
-    } else if(total>baseline && total-baseline<=3) {
-      const delta=total-baseline;
-      confirmed+=delta;
-      baseline=total;
-      log('Possível(is) nova(s) marcação(ões): +'+
-          delta+' (revisão necessária)');
-    } else if(total!==baseline) {
-      baseline=total;
-      log('Histórico alterado/reorganizado; '+
-          'contagem de rodadas não incrementada');
+  const current=extractHistory(left);
+
+  if(!current.length) return;
+
+  if(previousHistory===null) {
+    history=current;
+    previousHistory=current.slice();
+
+    log('Histórico inicial reconhecido: '+
+      current.length+' bolinhas.');
+  } else {
+    const old=previousHistory;
+    const oldText=old.join('');
+    const newText=current.join('');
+
+    // Somente registra uma nova rodada quando
+    // o histórico antigo é prefixo do novo.
+    // Reorganizações não são tratadas como
+    // novas rodadas confirmadas.
+    if(
+      current.length>old.length &&
+      newText.startsWith(oldText) &&
+      current.length-old.length<=3
+    ) {
+      const added=current.slice(old.length);
+
+      newRounds+=added.length;
+      history=current;
+
+      log('Possível(is) nova(s) rodada(s): '+
+        added.map(nameOf).join(', '));
     } else {
-      log('Posições do histórico mudaram '+
-          'sem alteração no total');
+      history=current;
+
+      if(oldText!==newText) {
+        log('Histórico alterado ou reorganizado. '+
+          'Não foi possível confirmar nova rodada.');
+      }
     }
 
-    $('roundState').textContent=
-      'Mudanças incrementais estimadas: '+
-      confirmed+' (não confirmadas como rodadas)';
+    previousHistory=current.slice();
   }
+
+  $('roundState').textContent=
+    'Novas rodadas estimadas: '+newRounds+
+    ' (sujeito a erros de leitura)';
+
+  updateAnalysis();
 }
 
 $('monitorBtn').onclick=()=>{
   if(!stream || !regions.left || !regions.right) {
-    log('Compartilhe a tela e marque os dois gráficos '+
-        'antes de iniciar');
+    log('Compartilhe a tela e marque os dois gráficos.');
     return;
   }
 
   pause();
+
   stableKey='';
   stableFrames=0;
-  lastLoggedKey='';
+  acceptedKey='';
+  previousHistory=null;
 
-  monitorTimer=setInterval(tick,1300);
-  tick();
+  timer=setInterval(readFrame,1300);
+  readFrame();
 
-  status('Monitoramento ativo');
-  log('Monitor iniciado');
+  setStatus('Monitoramento ativo');
+  log('Análise automática iniciada.');
 };
-
-function pause() {
-  if(monitorTimer) {
-    clearInterval(monitorTimer);
-    monitorTimer=null;
-    log('Monitor pausado');
-  }
-}
 
 $('pauseBtn').onclick=()=>{
   pause();
-  status('Monitor pausado');
+  setStatus('Monitor pausado');
 };
+
+updateAnalysis();
 </script>
 </body>
 </html>
